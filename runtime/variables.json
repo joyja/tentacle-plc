@@ -1,0 +1,14 @@
+{
+  "count": {
+    "datatype": "Number",
+    "initialValue": 0,
+    "description": "The number of times the main task has been run."
+  },
+  "motor1": {
+    "description": "A really great motor",
+    "datatype": "Motor",
+    "config": {
+      "hasRunningInput": false
+    }
+  }
+}

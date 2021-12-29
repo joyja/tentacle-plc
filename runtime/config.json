@@ -1,0 +1,9 @@
+{
+  "tasks" : {
+    "main": {
+      "description": "The main task",
+      "scanRate": 1000,
+      "program": "main"
+    }
+  }
+}
