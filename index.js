@@ -83,20 +83,15 @@ app.listen(4000, async () => {
         console.log(`the datatype for ${variableKey} is invalid`)
       }
     })
-    functionString = `${functionString}\nlet global = arguments[0]`
-    functionString = `${functionString}\n`
-    functionString = `${functionString}${fs.readFileSync(
-      path.resolve(
-        __dirname,
-        `runtime/programs/${config.tasks[taskKey].program}.js`
-      )
-    )}`
     console.log(functionString)
     intervals.push({
       interval: setInterval(
-        Function(functionString),
+        require(path.resolve(
+          __dirname,
+          `runtime/programs/${config.tasks[taskKey].program}.js`
+        )),
         config.tasks[taskKey].scanRate,
-        global
+        { global }
       ),
       scanRate: config.tasks[taskKey].scanRate,
       name: taskKey,

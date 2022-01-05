@@ -5,5 +5,12 @@
       "scanRate": 1000,
       "program": "main"
     }
+  },
+  "mqtt" : {
+    "brokers": {
+      "mosquitto1": {
+        "endpoint": "tcp://mosquitto1.lxd:1883"
+      }
+    }
   }
 }
