@@ -16,6 +16,9 @@ class Motor extends FunctionBlock {
         this.startCount = this.startCount + 1
         this.prevRunning = this.running
       }
+      if (!this.running && this.prevRunning) {
+        this.prevRunning = false
+      }
     }, 1000)
   }
   autoRequest() {
@@ -39,7 +42,7 @@ class Motor extends FunctionBlock {
   }
 }
 Motor.persistentData = [
-  'starCount',
+  'startCount',
   'runtime',
   'mode',
   'startCommand',

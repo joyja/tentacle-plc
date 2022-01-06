@@ -1,4 +1,4 @@
-const sparkplug = require('sparkplug-client')
+const sparkplug = require('tentacle-sparkplug-client')
 
 class Mqtt {
   constructor({
