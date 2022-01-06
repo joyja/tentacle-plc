@@ -9,7 +9,7 @@ class Persistence {
       this.data = JSON.parse(fs.readFileSync(filepath))
     } else {
       this.data = {}
-      fs.writeFileSync(filepath,JSON.stringify(this.data))
+      this.writeFile(this.data)
     }
     this.global = global
     this.variables = variables
@@ -19,15 +19,17 @@ class Persistence {
   load() {
     Object.keys(this.global).forEach((key) => {
       if (this.classes.map(fb => fb.name).includes(this.global[key].constructor.name)) {
-        console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
+        // console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
         this.global[key].constructor.persistentData.forEach((variableName) => {
           if (variableName in this.data[key]) {
             this.global[key][variableName] = this.data[key][variableName]
           }
         })
       } else {
-        console.log(`${key} is a primitive of type ${typeof this.global[key]}`)
-        this.global[key] = this.data[key]
+        // console.log(`${key} is a primitive of type ${typeof this.global[key]}`)
+        if (this.variables[key].persistent && key in this.data) {
+          this.global[key] = this.data[key]
+        }
       }
     })
   }
@@ -35,31 +37,33 @@ class Persistence {
     const newData = {}
     Object.keys(this.global).forEach((key) => {
       if (this.classes.map(fb => fb.name).includes(this.global[key].constructor.name)) {
-        console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
+        // console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
         const fbData = {}
         this.global[key].constructor.persistentData.forEach((variableName) => {
-          console.log(this.global[key])
+          // console.log(this.global[key])
           fbData[variableName] = this.global[key][variableName]
         })
         newData[key] = fbData
       } else {
-        console.log(`${key} is a primitive of type ${typeof this.global[key]}`)
-        newData[key] = this.global[key]
+        // console.log(`${key} is a primitive of type ${typeof this.global[key]}`)
+        if (this.variables[key].persistent) {
+          newData[key] = this.global[key]
+        }
       }
     })
     this.data = newData
     try {
-      this.writeFile(this.data)
+      this.writeFile()
     } catch (error) {
       console.log(error)
     }
   }
-  async writeFile(content) {
-    fs.writeFileSync(this.filepath, JSON.stringify(content), (error) => {
+  async writeFile() {
+    fs.writeFileSync(this.filepath, JSON.stringify(this.data, null, 2), (error) => {
       if (error) {
         return rejects(error)
       }
-      resolve({ file: file, content: content })
+      resolve()
     })
   }
 }
