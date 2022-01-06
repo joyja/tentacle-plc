@@ -76,6 +76,7 @@ app.listen(4000, async () => {
       console.log(variable.datatype)
       if (variable.datatype === 'Number') {
         global[variableKey] = variable.initialValue
+        console.log(variable.initialValue)
       } else if (classes.map((item) => item.name).includes(variable.datatype)) {
         variableClass = classes.find((item) => item.name === variable.datatype)
         global[variableKey] = new variableClass(variable.config)
