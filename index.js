@@ -6,6 +6,7 @@ const expressPlayground =
 const cors = require('cors')
 const fs = require('fs')
 const path = require('path')
+const Persistence = require('./persistence')
 
 const config = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'runtime/config.json'))
@@ -66,7 +67,6 @@ app.listen(4000, async () => {
     .reduce((acc, current) => {
       return [...acc, ...current]
     })
-  console.log(classes.map((item) => item.name))
   const intervals = []
   Object.keys(config.tasks).forEach((taskKey) => {
     let functionString = ``
@@ -83,15 +83,22 @@ app.listen(4000, async () => {
         console.log(`the datatype for ${variableKey} is invalid`)
       }
     })
-    console.log(functionString)
-    intervals.push({
-      interval: setInterval(
-        require(path.resolve(
-          __dirname,
-          `runtime/programs/${config.tasks[taskKey].program}.js`
-        )),
+    const persistence = new Persistence({ variables, global, classes })
+    persistence.load()
+    intervals.push({/*  */
+      interval: setInterval(({ global, persistence }) => {
+          try {
+            require(path.resolve(
+              __dirname,
+              `runtime/programs/${config.tasks[taskKey].program}.js`
+            ))({ global })
+            persistence.persist()
+          } catch (error) {
+            console.log(error)
+          }
+        },
         config.tasks[taskKey].scanRate,
-        { global }
+        { global, persistence }
       ),
       scanRate: config.tasks[taskKey].scanRate,
       name: taskKey,
