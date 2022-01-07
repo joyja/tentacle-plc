@@ -1,7 +1,7 @@
 {
   "motor1": {
     "startCount": 3,
-    "runtime": 14.983333333333658,
+    "runtime": 15.316666666667007,
     "startCommand": true,
     "prevRunning": true
   }
