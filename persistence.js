@@ -5,23 +5,23 @@ const path = require('path')
 
 class Persistence {
   constructor({ filepath = path.resolve(__dirname, 'runtime/persistence.json'), variables, global, classes}) {
-    if (fs.existsSync(filepath)) {
-      this.data = JSON.parse(fs.readFileSync(filepath))
-    } else {
-      this.data = {}
-      this.writeFile(this.data)
-    }
     this.global = global
     this.variables = variables
     this.classes = classes
     this.filepath = filepath
+    if (fs.existsSync(filepath)) {
+      this.data = JSON.parse(fs.readFileSync(filepath))
+    } else {
+      this.data = {}
+      this.writeFile()
+    }
   }
   load() {
     Object.keys(this.global).forEach((key) => {
       if (this.classes.map(fb => fb.name).includes(this.global[key].constructor.name)) {
         // console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
         this.global[key].constructor.persistentData.forEach((variableName) => {
-          if (variableName in this.data[key]) {
+          if (key in this.data && variableName in this.data[key]) {
             this.global[key][variableName] = this.data[key][variableName]
           }
         })
