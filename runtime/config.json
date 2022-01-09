@@ -7,10 +7,8 @@
     }
   },
   "mqtt" : {
-    "brokers": {
-      "mosquitto1": {
-        "endpoint": "tcp://mosquitto1.lxd:1883"
-      }
+    "mosquitto1": {
+      "endpoint": "tcp://mosquitto1.lxd:1883"
     }
   }
 }
