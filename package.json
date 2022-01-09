@@ -12,6 +12,7 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.16.5",
     "cors": "^2.8.5",
+    "denormalize": "^1.2.10",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -20,6 +21,7 @@
     "graphql": "^15.8.0",
     "graphql-playground-middleware-express": "^1.7.23",
     "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "tentacle-sparkplug-client": "^0.0.6"
