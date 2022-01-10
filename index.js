@@ -9,6 +9,7 @@ const path = require('path')
 const Persistence = require('./persistence')
 const _ = require('lodash')
 const denormalize = require('./denormalize')
+const recursiveReaddir = require('./recursiveReaddir.js')
 
 const config = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'runtime/config.json'))
@@ -51,8 +52,14 @@ const schema = buildSchema(`
   type Query {
     info: String!
     metrics: [taskMetric!]!
-    getValue(variablePath: String!): atomicVariable
-    getValues: [atomicVariable!]!
+    value(variablePath: String!): atomicVariable
+    values: [atomicVariable!]!
+    programs: [String!]!
+    program(name: String!): String!
+    functions: [String!]!
+    function(name: String!): String!
+    classes: [String!]!
+    class(name: String!): String!
     configuration: config!
   }
 `)
@@ -95,7 +102,7 @@ const rootValue = {
       }),
     }
   },
-  getValue: function (args, context, info) {
+  value: function (args, context, info) {
     const variable = _.get(context.global, args.variablePath)
     if (variable !== undefined) {
       return {
@@ -107,7 +114,7 @@ const rootValue = {
       throw Error(`${args.variablePath} does not exits.`)
     }
   },
-  getValues: function (args, context, info) {
+  values: function (args, context, info) {
     const values = denormalize(context.global)
     return Object.keys(values).map((key) => {
       return {
@@ -131,6 +138,45 @@ const rootValue = {
     } else {
       throw Error(`${args.variablePath} does not exits.`)
     }
+  },
+  program: function (args, context, info) {
+    return fs.readFileSync(
+      path.resolve(__dirname, 'runtime/programs', args.name),
+      { encoding: 'utf8', flag: 'r' }
+    )
+  },
+  program: function (args, context, info) {
+    return fs.readFileSync(
+      path.resolve(__dirname, 'runtime/programs', args.name),
+      { encoding: 'utf8', flag: 'r' }
+    )
+  },
+  programs: function (args, context, info) {
+    return recursiveReaddir(path.resolve(__dirname, 'runtime/programs')).map(
+      (file) => file.replace(`${__dirname}/runtime/programs/`, '')
+    )
+  },
+  function: function (args, context, info) {
+    return fs.readFileSync(
+      path.resolve(__dirname, 'runtime/functions', args.name),
+      { encoding: 'utf8', flag: 'r' }
+    )
+  },
+  functions: function (args, context, info) {
+    return fs
+      .readdirSync(path.resolve(__dirname, 'runtime/functions'))
+      .map((file) => file.replace(`${__dirname}/runtime/functions/`, ''))
+  },
+  class: function (args, context, info) {
+    return fs.readFileSync(
+      path.resolve(__dirname, 'runtime/classes', args.name),
+      { encoding: 'utf8', flag: 'r' }
+    )
+  },
+  classes: function (args, context, info) {
+    return fs
+      .readdirSync(path.resolve(__dirname, 'runtime/classes'))
+      .map((file) => file.replace(`${__dirname}/runtime/classes/`, ''))
   },
   // loadProgram: (args) => {
   //   if (mainInterval) {
