@@ -8,7 +8,18 @@
   },
   "mqtt" : {
     "mosquitto1": {
-      "endpoint": "tcp://mosquitto1.lxd:1883"
+      "description": "JAR Automation Cluster MQTT",
+      "scanRate": 1000,
+      "config": {
+        "serverUrl": "tcp://192.168.50.76:1883",
+        "groupId": "test",
+        "username": "",
+        "password": "",
+        "edgeNode": "jsdev",
+        "deviceName": "tentacle-plc-1",
+        "clientId": "tentacle-plc-1",
+        "version": "spBv1.0"
+      }
     }
   }
 }

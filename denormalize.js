@@ -50,10 +50,18 @@ function denormalize(data, keys, map) {
   } else if (_isTimeout(data)) {
     // if it's a timeout ignore it (it won't denormalize properly)
   } else if (_isObject(data)) {
+    const classData = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(data))
+    Object.keys(classData).forEach((propertyKey) => {
+      if (classData[propertyKey].get !== undefined) {
+        // console.log(keys)
+        map[createPropertyName([ ...keys, propertyKey])] = data[propertyKey]
+      }
+    })
     Object.keys(data).forEach(function (key) {
       denormalize(data[key], keys.concat(key), map)
     })
   } else {
+    // console.log(keys)
     map[createPropertyName(keys)] = data
   }
   return map

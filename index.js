@@ -10,6 +10,7 @@ const Persistence = require('./persistence')
 const _ = require('lodash')
 const denormalize = require('./denormalize')
 const recursiveReaddir = require('./recursiveReaddir.js')
+const Mqtt = require('./mqtt')
 
 const config = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'runtime/config.json'))
@@ -46,7 +47,6 @@ const schema = buildSchema(`
     totalScanTime: Float!
   }
   type Mutation {
-    loadProgram(program: String!): String
     setValue(variablePath: String!, value: String!): atomicVariable
   }
   type Query {
@@ -68,6 +68,7 @@ let mainInterval
 
 const global = {}
 const metrics = {}
+const mqtt = {}
 let persistence
 
 const rootValue = {
@@ -178,19 +179,13 @@ const rootValue = {
       .readdirSync(path.resolve(__dirname, 'runtime/classes'))
       .map((file) => file.replace(`${__dirname}/runtime/classes/`, ''))
   },
-  // loadProgram: (args) => {
-  //   if (mainInterval) {
-  //     clearInterval(mainInterval)
-  //   }
-  //   mainProgram = Function(args.program)
-  //   mainInterval = setInterval(mainProgram, 1000)
-  // },
 }
 
 const context = {
   global,
   metrics,
   config,
+  mqtt
 }
 
 app.get(
@@ -225,6 +220,18 @@ app.listen(4000, async () => {
       return [...acc, ...current]
     })
   const intervals = []
+  Object.keys(config.mqtt).forEach((mqttKey) => {
+    mqtt[mqttKey] = new Mqtt({
+      ...config.mqtt[mqttKey].config,
+      global
+    })
+    mqtt[mqttKey].connect()
+    // try {
+    //   mqtt[mqttKey].startPublishing()
+    // } catch (error) {
+    //   console.error(error)
+    // }
+  })
   Object.keys(config.tasks).forEach((taskKey) => {
     metrics[taskKey] = {}
     Object.keys(variables).forEach((variableKey) => {
