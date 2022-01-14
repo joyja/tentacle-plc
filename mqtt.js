@@ -30,7 +30,7 @@ class Mqtt {
     rate,
     clientId,
     version = 'spBv1.0',
-    global
+    global,
   }) {
     this.rate = rate
     this.global = global
@@ -49,22 +49,28 @@ class Mqtt {
   get denormalizedGlobal() {
     return denormalize(this.global)
   }
-  publish() {
+  async publish() {
     const currentGlobal = this.denormalizedGlobal
     const changed = {}
     Object.keys(currentGlobal).forEach((key) => {
       if (currentGlobal[key] !== this.prevGlobal[key]) {
-        changed[key] = currentGlobal[key] 
+        changed[key] = currentGlobal[key]
       }
     })
-    const payload = Object.keys(changed[key]).map((key) => {
+    const payload = Object.keys(changed).map((key) => {
       return {
         name: key,
         value: changed[key],
         type: getDatatype(changed[key]),
-        timestamp: getUnixTime(new Date())
+        timestamp: getUnixTime(new Date()),
       }
     })
+    if (payload.length > 0) {
+      await this.client.publishDeviceData(this.deviceName, {
+        timestamp: getUnixTime(new Date()),
+        metrics: [...payload],
+      })
+    }
     this.prevGlobal = JSON.parse(JSON.stringify(this.denormalizedGlobal))
   }
   startPublishing() {
@@ -77,12 +83,12 @@ class Mqtt {
     this.interval = clearInterval(this.interval)
   }
   connect() {
-    if (!this.client){
+    if (!this.client) {
       this.client = sparkplug.newClient(this.config)
       // this.client.on('reconnect',this.onReconnect)
       // this.client.on('error',this.onError)
       // this.client.on('offline',this.onOffline)
-      this.client.on('birth',() => {
+      this.client.on('birth', () => {
         this.onBirth()
       })
       // this.client.on('dcmd',this.onDcmd)
@@ -115,9 +121,9 @@ class Mqtt {
           name: key,
           value: global[key],
           type: getDatatype(global[key]),
-          timestamp: getUnixTime(new Date())
+          timestamp: getUnixTime(new Date()),
         }
-      })
+      }),
     })
   }
 }
