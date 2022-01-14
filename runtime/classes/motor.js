@@ -40,6 +40,9 @@ class Motor extends FunctionBlock {
       return this.startCommand
     }
   }
+  set running(value) {
+    this.startCommand = value
+  }
 }
 Motor.persistentData = [
   'startCount',

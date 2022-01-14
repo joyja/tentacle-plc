@@ -2,7 +2,14 @@
   "count": {
     "datatype": "Number",
     "initialValue": 0,
-    "description": "The number of times the main task has been run."
+    "description": "The number of times the main task has been run.",
+    "persistent": true
+  },
+  "countSecondary": {
+    "datatype": "Number",
+    "initialValue": 0,
+    "description": "The number of times the secondary task has been run.",
+    "persistent": true
   },
   "motor1": {
     "description": "A really great motor",

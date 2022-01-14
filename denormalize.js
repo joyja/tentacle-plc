@@ -38,7 +38,7 @@ function _isTimeout(val) {
   return val instanceof Timeout
 }
 
-function denormalize(data, keys, map) {
+function denormalize(data, keys, map, layer = 0) {
   if (arguments.length === 1) {
     keys = []
     map = {}
@@ -55,10 +55,12 @@ function denormalize(data, keys, map) {
       if (classData[propertyKey].get !== undefined) {
         // console.log(keys)
         map[createPropertyName([ ...keys, propertyKey])] = data[propertyKey]
+      } else if ( typeof classData[propertyKey].value === 'function' & layer > 0 && propertyKey !== 'constructor') {
+        // map[createPropertyName([ ...keys, propertyKey])] = 'function'
       }
     })
     Object.keys(data).forEach(function (key) {
-      denormalize(data[key], keys.concat(key), map)
+      denormalize(data[key], keys.concat(key), map, layer = layer + 1)
     })
   } else {
     // console.log(keys)
