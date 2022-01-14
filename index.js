@@ -185,7 +185,7 @@ const context = {
   global,
   metrics,
   config,
-  mqtt
+  mqtt,
 }
 
 app.get(
@@ -223,11 +223,11 @@ app.listen(4000, async () => {
   Object.keys(config.mqtt).forEach((mqttKey) => {
     mqtt[mqttKey] = new Mqtt({
       ...config.mqtt[mqttKey].config,
-      global
+      global,
     })
     mqtt[mqttKey].connect()
     // try {
-    //   mqtt[mqttKey].startPublishing()
+    mqtt[mqttKey].startPublishing()
     // } catch (error) {
     //   console.error(error)
     // }
