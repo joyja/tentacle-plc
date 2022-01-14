@@ -2,17 +2,18 @@ const sparkplug = require('tentacle-sparkplug-client')
 const getUnixTime = require('date-fns/getUnixTime')
 const denormalize = require('./denormalize')
 const { clear } = require('tentacle-sparkplug-client/src/logger')
+const _ = require('lodash')
 
 const getDatatype = function (value) {
   if (typeof value === 'boolean') {
-    return 'bool'
+    return 'BOOLEAN'
   } else if (typeof value === 'string') {
-    return 'string'
+    return 'STRING'
   } else if (typeof value === 'number') {
     if (Number.isInteger(value)) {
-      return 'uint32'
+      return 'INT32'
     } else {
-      return 'float'
+      return 'FLOAT'
     }
   } else {
     throw Error(`datatype of ${key} could not be determined.`)
@@ -44,6 +45,7 @@ class Mqtt {
       edgeNode,
       clientId,
       version,
+      publishDeath: true,
     }
   }
   get denormalizedGlobal() {
@@ -59,7 +61,7 @@ class Mqtt {
     })
     const payload = Object.keys(changed).map((key) => {
       return {
-        name: key,
+        name: key.replace('.', '/'),
         value: changed[key],
         type: getDatatype(changed[key]),
         timestamp: getUnixTime(new Date()),
@@ -83,29 +85,72 @@ class Mqtt {
     this.interval = clearInterval(this.interval)
   }
   connect() {
+    this.stopPublishing()
     if (!this.client) {
       this.client = sparkplug.newClient(this.config)
-      // this.client.on('reconnect',this.onReconnect)
+      this.client.on('reconnect', () => {
+        this.onReconnect()
+      })
       // this.client.on('error',this.onError)
       // this.client.on('offline',this.onOffline)
       this.client.on('birth', () => {
         this.onBirth()
       })
-      // this.client.on('dcmd',this.onDcmd)
-      // this.client.on('ncmd',this.onNcmd)
+      this.client.on('dcmd', (deviceId, payload) => {
+        console.log(`Mqtt service received a dcmd for ${deviceId}.`)
+        try {
+          this.onDcmd(payload)
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      this.client.on('ncmd', (payload) => {
+        if (payload.metrics) {
+          const rebirth = payload.metrics.find(
+            (metric) => metric.name === `Node Control/Rebirth`
+          )
+          if (rebirth) {
+            if (rebirth.value) {
+              console.log(`Rebirth request detected. Reinitializing...`)
+              this.disconnect()
+              this.connect()
+            }
+          }
+        }
+      })
     }
   }
   disconnect() {
     if (this.client) {
-      logger.info(`Mqtt service ${this.service.name} is disconnecting.`)
+      console.log(`Mqtt service is disconnecting.`)
       this.stopPublishing()
       const payload = {
         timestamp: getUnixTime(new Date()),
       }
-      this.client.publishDeviceDeath(this.deviceName, payload)
+      this.client.publishDeviceDeath(`${this.deviceName}`, payload)
       this.client.stop()
       this.client = undefined
     }
+  }
+  onDcmd(payload) {
+    const { metrics } = payload
+    metrics.forEach((metric) => {
+      const variablePath = metric.name.replace('/', '.')
+      const variable = _.get(this.global, variablePath)
+      if (variable !== undefined) {
+        if (typeof variable == 'boolean') {
+          console.log(metric.value)
+          _.set(
+            this.global,
+            variablePath,
+            (typeof metric.value === 'string' && metric.value === 'true') ||
+              (typeof metric.value === 'boolean' && metric.value)
+          )
+        }
+      } else {
+        console.log(`${variablePath} does not exits.`)
+      }
+    })
   }
   async onBirth() {
     const payload = {
@@ -114,17 +159,23 @@ class Mqtt {
     }
     await this.client.publishNodeBirth(payload)
     const global = this.denormalizedGlobal
-    await this.client.publishDeviceBirth(this.deviceName, {
-      timestamp: getUnixTime(new Date()),
-      metrics: Object.keys(global).map((key) => {
-        return {
-          name: key,
-          value: global[key],
-          type: getDatatype(global[key]),
-          timestamp: getUnixTime(new Date()),
-        }
-      }),
+    const metrics = Object.keys(global).map((key) => {
+      return {
+        name: key.replace('.', '/'),
+        value: global[key],
+        type: getDatatype(global[key]),
+        timestamp: getUnixTime(new Date()),
+      }
     })
+    await this.client.publishDeviceBirth(`${this.deviceName}`, {
+      timestamp: getUnixTime(new Date()),
+      metrics,
+    })
+    this.startPublishing()
+  }
+  async onReconnect() {
+    this.stopPublishing()
+    this.startPublishing()
   }
 }
 
