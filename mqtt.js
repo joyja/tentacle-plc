@@ -5,14 +5,14 @@ const { clear } = require('tentacle-sparkplug-client/src/logger')
 
 const getDatatype = function (value) {
   if (typeof value === 'boolean') {
-    return 'bool'
+    return 'BOOLEAN'
   } else if (typeof value === 'string') {
-    return 'string'
+    return 'STRING'
   } else if (typeof value === 'number') {
     if (Number.isInteger(value)) {
-      return 'uint32'
+      return 'INT32'
     } else {
-      return 'float'
+      return 'FLOAT'
     }
   } else {
     throw Error(`datatype of ${key} could not be determined.`)

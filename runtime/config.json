@@ -4,14 +4,19 @@
       "description": "The main task",
       "scanRate": 1000,
       "program": "main"
+    },
+    "secondary": {
+      "description": "The main task",
+      "scanRate": 2000,
+      "program": "secondary"
     }
   },
   "mqtt" : {
     "mosquitto1": {
       "description": "JAR Automation Cluster MQTT",
-      "scanRate": 1000,
+      "rate": 1000,
       "config": {
-        "serverUrl": "tcp://10.29.57.149:1883",
+        "serverUrl": "tcp://192.168.50.76:1883",
         "groupId": "test",
         "username": "",
         "password": "",

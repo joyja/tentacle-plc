@@ -31,10 +31,20 @@ const schema = buildSchema(`
     scanRate: Int!
     program: String!
   }
+  type configMqttConfig {
+    serverUrl: String
+    groupId: String
+    username: String
+    password: String
+    edgeNode: String
+    deviceName: String
+    clientId: String
+    version: String
+  }
   type configMqtt {
     name: String!
     description: String!
-    endpoint: String!
+    config: configMqttConfig!
   }
   type config {
     tasks: [configTask!]!
@@ -251,14 +261,14 @@ app.listen(4000, async () => {
     let intervalStart
     intervals.push({
       interval: setInterval(
-        ({ global, persistence, metrics, taskKey }) => {
+        async ({ global, persistence, metrics, taskKey }) => {
           intervalStop = intervalStart ? process.hrtime(intervalStart) : 0
           metrics[taskKey].intervalExecutionTime = intervalStop
             ? (intervalStop[0] * 1e9 + intervalStop[1]) / 1e6
             : 0
           functionStart = process.hrtime()
           try {
-            require(path.resolve(
+            await require(path.resolve(
               __dirname,
               `runtime/programs/${config.tasks[taskKey].program}.js`
             ))({ global })
