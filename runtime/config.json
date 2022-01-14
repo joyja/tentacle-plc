@@ -11,13 +11,13 @@
       "description": "JAR Automation Cluster MQTT",
       "scanRate": 1000,
       "config": {
-        "serverUrl": "tcp://10.29.57.149:1883",
+        "serverUrl": "tcp://192.168.50.76:1883",
         "groupId": "test",
         "username": "",
         "password": "",
         "edgeNode": "jsdev",
-        "deviceName": "tentacle-plc-1",
-        "clientId": "tentacle-plc-1",
+        "deviceName": "tentacle1",
+        "clientId": "jsdev",
         "version": "spBv1.0"
       }
     }
