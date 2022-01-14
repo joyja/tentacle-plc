@@ -237,7 +237,7 @@ app.listen(4000, async () => {
     })
     mqtt[mqttKey].connect()
     // try {
-    mqtt[mqttKey].startPublishing()
+    // mqtt[mqttKey].startPublishing()
     // } catch (error) {
     //   console.error(error)
     // }

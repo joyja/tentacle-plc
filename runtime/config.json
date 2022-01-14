@@ -21,8 +21,8 @@
         "username": "",
         "password": "",
         "edgeNode": "jsdev",
-        "deviceName": "tentacle-plc-1",
-        "clientId": "tentacle-plc-1",
+        "deviceName": "tentacle1",
+        "clientId": "jsdev",
         "version": "spBv1.0"
       }
     }
