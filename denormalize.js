@@ -56,7 +56,7 @@ function denormalize(data, keys, map, layer = 0) {
         // console.log(keys)
         map[createPropertyName([ ...keys, propertyKey])] = data[propertyKey]
       } else if ( typeof classData[propertyKey].value === 'function' & layer > 0 && propertyKey !== 'constructor') {
-        // map[createPropertyName([ ...keys, propertyKey])] = 'function'
+        map[createPropertyName([ ...keys, propertyKey])] = `function${classData[propertyKey].value.length}`
       }
     })
     Object.keys(data).forEach(function (key) {
