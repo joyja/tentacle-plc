@@ -11,9 +11,13 @@ const _ = require('lodash')
 const denormalize = require('./denormalize')
 const recursiveReaddir = require('./recursiveReaddir.js')
 const Mqtt = require('./mqtt')
+const Modbus = require('./modbus')
 
 const config = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'runtime/config.json'))
+)
+const variables = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, `runtime/variables.json`))
 )
 
 const app = express()
@@ -24,6 +28,25 @@ const schema = buildSchema(`
     path: String!
     value: String!
     datatype: String!
+  }
+  type VariableSourceParams {
+    register: Int!
+    registerType: String!
+    format: String!
+  }
+  type VariableSource {
+    type: String!
+    name: String!
+    rate: Int!
+    params: VariableSourceParams
+  }
+  type Variable {
+    name: String!
+    description: String
+    datatype: String!
+    initialValue: String
+    persistent: Boolean
+    source: VariableSource
   }
   type configTask {
     name: String!
@@ -41,14 +64,29 @@ const schema = buildSchema(`
     clientId: String
     version: String
   }
+  type configModbusConfig {
+    host: String
+    port: Int
+    unitId: Int,
+    reverseBits: Boolean,
+    reverseWords: Boolean,
+    zeroBased: Boolean,
+    retryRate: Int
+  }
   type configMqtt {
     name: String!
     description: String!
     config: configMqttConfig!
   }
+  type configModbus {
+    name: String!
+    description: String!
+    config: configModbusConfig!
+  }
   type config {
     tasks: [configTask!]!
     mqtt: [configMqtt!]!
+    modbus: [configModbus!]!
   }
   type taskMetric {
     task: String!
@@ -58,12 +96,14 @@ const schema = buildSchema(`
   }
   type Mutation {
     setValue(variablePath: String!, value: String!): atomicVariable
+    runFunction(functionPath: String!, args: String): String
   }
   type Query {
     info: String!
     metrics: [taskMetric!]!
     value(variablePath: String!): atomicVariable
     values: [atomicVariable!]!
+    variables: [Variable!]!
     programs: [String!]!
     program(name: String!): String!
     functions: [String!]!
@@ -79,6 +119,7 @@ let mainInterval
 const global = {}
 const metrics = {}
 const mqtt = {}
+const modbus = {}
 let persistence
 
 const rootValue = {
@@ -109,6 +150,15 @@ const rootValue = {
             ? context.config.mqtt[key].description
             : '',
           ...context.config.mqtt[key],
+        }
+      }),
+      modbus: Object.keys(context.config.modbus).map((key) => {
+        return {
+          name: key,
+          description: context.config.modbus[key].description
+            ? context.config.modbus[key].description
+            : '',
+          ...context.config.modbus[key],
         }
       }),
     }
@@ -148,6 +198,36 @@ const rootValue = {
       }
     } else {
       throw Error(`${args.variablePath} does not exits.`)
+    }
+  },
+  variables: function (args, context, info) {
+    return Object.keys(context.variables).map((key) => {
+      return {
+        name: key,
+        description: context.variables[key].description
+          ? context.variables[key].description
+          : '',
+        ...context.variables[key],
+      }
+    })
+  },
+  runFunction: function (args, context, info) {
+    const func = _.get(context.global, args.functionPath)
+    if (func !== undefined) {
+      if (typeof func === 'function') {
+        const functionPathParts = args.functionPath.split('.')
+        const functionName = functionPathParts.pop()
+        const parent = _.get(context.global, functionPathParts.join('.'))
+        if (func.length === 0) {
+          parent[functionName]()
+        } else {
+          parent[functionName](...args.args)
+        }
+      } else {
+        throw Error(`${args.functionPath} exists, but is not a function.`)
+      }
+    } else {
+      throw Error(`${args.functionPath} does not exits.`)
     }
   },
   program: function (args, context, info) {
@@ -196,6 +276,8 @@ const context = {
   metrics,
   config,
   mqtt,
+  modbus,
+  variables,
 }
 
 app.get(
@@ -214,43 +296,47 @@ app.use(
 )
 
 app.listen(4000, async () => {
-  const variables = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, `runtime/variables.json`))
-  )
-  const classes = fs
-    .readdirSync(path.resolve(__dirname, 'runtime/classes'))
-    .map((filename) => {
-      const classes = require(path.resolve(
-        __dirname,
-        `runtime/classes/${filename}`
-      ))
-      return classes
+  try {
+    const classes = fs
+      .readdirSync(path.resolve(__dirname, 'runtime/classes'))
+      .map((filename) => {
+        const classes = require(path.resolve(
+          __dirname,
+          `runtime/classes/${filename}`
+        ))
+        return classes
+      })
+      .reduce((acc, current) => {
+        return [...acc, ...current]
+      })
+    const intervals = []
+    Object.keys(config.modbus).forEach((modbusKey) => {
+      modbus[modbusKey] = new Modbus({
+        ...config.modbus[modbusKey].config,
+        global,
+      })
+      modbus[modbusKey].connect()
     })
-    .reduce((acc, current) => {
-      return [...acc, ...current]
+    Object.keys(config.mqtt).forEach((mqttKey) => {
+      mqtt[mqttKey] = new Mqtt({
+        ...config.mqtt[mqttKey].config,
+        global,
+      })
+      mqtt[mqttKey].connect()
+      // try {
+      // mqtt[mqttKey].startPublishing()
+      // } catch (error) {
+      //   console.error(error)
+      // }
     })
-  const intervals = []
-  Object.keys(config.mqtt).forEach((mqttKey) => {
-    mqtt[mqttKey] = new Mqtt({
-      ...config.mqtt[mqttKey].config,
-      global,
-    })
-    mqtt[mqttKey].connect()
-    // try {
-    // mqtt[mqttKey].startPublishing()
-    // } catch (error) {
-    //   console.error(error)
-    // }
-  })
-  Object.keys(config.tasks).forEach((taskKey) => {
-    metrics[taskKey] = {}
     Object.keys(variables).forEach((variableKey) => {
-      variable = variables[variableKey]
+      const variable = variables[variableKey]
       if (variable.datatype === 'Number') {
         global[variableKey] = variable.initialValue
       } else if (classes.map((item) => item.name).includes(variable.datatype)) {
         variableClass = classes.find((item) => item.name === variable.datatype)
         global[variableKey] = new variableClass(variable.config)
+        global[variableKey].name = variableKey
       } else {
         console.log(`the datatype for ${variableKey} is invalid`)
       }
@@ -258,38 +344,55 @@ app.listen(4000, async () => {
     persistence = new Persistence({ variables, global, classes })
     context.persistence = persistence
     persistence.load()
-    let intervalStart
-    intervals.push({
-      interval: setInterval(
-        async ({ global, persistence, metrics, taskKey }) => {
-          intervalStop = intervalStart ? process.hrtime(intervalStart) : 0
-          metrics[taskKey].intervalExecutionTime = intervalStop
-            ? (intervalStop[0] * 1e9 + intervalStop[1]) / 1e6
-            : 0
-          functionStart = process.hrtime()
-          try {
-            await require(path.resolve(
-              __dirname,
-              `runtime/programs/${config.tasks[taskKey].program}.js`
-            ))({ global })
-            functionStop = process.hrtime(functionStart)
-            metrics[taskKey].functionExecutionTime =
-              (functionStop[0] * 1e9 + functionStop[1]) / 1e6
-            persistence.persist()
-            metrics[taskKey].totalScanTime =
-              metrics.main.functionExecutionTime +
-              metrics.main.intervalExecutionTime
-          } catch (error) {
-            console.log(error)
-          }
-          intervalStart = process.hrtime()
-        },
-        config.tasks[taskKey].scanRate,
-        { global, persistence, metrics, taskKey }
-      ),
-      scanRate: config.tasks[taskKey].scanRate,
-      name: taskKey,
+    Object.keys(variables).forEach((variableKey) => {
+      const variable = variables[variableKey]
+      if (variable.source) {
+        if (variable.source.type === 'modbus') {
+          setInterval(() => {
+            modbus[variable.source.name]
+              .read(variable.source.params)
+              .then((result) => (global[variableKey] = result))
+          }, variable.source.rate)
+        }
+      }
     })
-  })
-  console.log('server started on port 4000.')
+    Object.keys(config.tasks).forEach((taskKey) => {
+      metrics[taskKey] = {}
+      let intervalStart
+      intervals.push({
+        interval: setInterval(
+          async ({ global, persistence, metrics, taskKey }) => {
+            intervalStop = intervalStart ? process.hrtime(intervalStart) : 0
+            metrics[taskKey].intervalExecutionTime = intervalStop
+              ? (intervalStop[0] * 1e9 + intervalStop[1]) / 1e6
+              : 0
+            functionStart = process.hrtime()
+            try {
+              await require(path.resolve(
+                __dirname,
+                `runtime/programs/${config.tasks[taskKey].program}.js`
+              ))({ global })
+              functionStop = process.hrtime(functionStart)
+              metrics[taskKey].functionExecutionTime =
+                (functionStop[0] * 1e9 + functionStop[1]) / 1e6
+              persistence.persist()
+              metrics[taskKey].totalScanTime =
+                metrics.main.functionExecutionTime +
+                metrics.main.intervalExecutionTime
+            } catch (error) {
+              console.log(error)
+            }
+            intervalStart = process.hrtime()
+          },
+          config.tasks[taskKey].scanRate,
+          { global, persistence, metrics, taskKey }
+        ),
+        scanRate: config.tasks[taskKey].scanRate,
+        name: taskKey,
+      })
+    })
+    console.log('server started on port 4000.')
+  } catch (error) {
+    console.log(error)
+  }
 })

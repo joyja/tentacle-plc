@@ -1,8 +1,6 @@
-const { FunctionBlock } = require('../../functionBlock')
-
-class Motor extends FunctionBlock {
+class Motor {
   constructor({ hasRunningInput }) {
-    super()
+    this.functionsFeedback = ''
     this.hasRunningInput = hasRunningInput
     this.prevRunning = false
     this.runtime = 0
@@ -23,15 +21,27 @@ class Motor extends FunctionBlock {
   }
   autoRequest() {
     this.mode = 'auto'
+    this.functionsFeedback = `${this.name} placed in auto mode.`
   }
   manualRequest() {
     this.mode = 'manual'
+    this.functionsFeedback = `${this.name} placed in manual mode.`
   }
   startRequest() {
-    this.startCommand = true
+    if (this.mode === 'manual') {
+      this.startCommand = true
+      this.functionsFeedback = `${this.name} manually started.`
+    } else {
+      this.functionsFeedback = `${this.name} cannot be started manually when it is in auto mode.`
+    }
   }
   stopRequest() {
-    this.startCommand = false
+    if (this.mode === 'manual') {
+      this.startCommand = false
+      this.functionsFeedback = `${this.name} manually stopped.`
+    } else {
+      this.functionsFeedback = `${this.name} cannot be stopped manually when it is in manual mode.`
+    }
   }
   get running() {
     if (this.hasRunningInput) {
