@@ -11,11 +11,28 @@
     "description": "The number of times the secondary task has been run.",
     "persistent": true
   },
+  "officeTemp": {
+    "description": "The temperature in James' office",
+    "datatype": "Number",
+    "initialValue": 0,
+    "persistent": true,
+    "source": {
+      "type": "modbus",
+      "name": "groovEpic",
+      "rate": 1000,
+      "params": {
+        "register": 4865,
+        "registerType": "INPUT_REGISTER",
+        "format": "FLOAT"
+      }
+    }
+  },
   "motor1": {
     "description": "A really great motor",
     "datatype": "Motor",
     "config": {
-      "hasRunningInput": false
+      "hasRunningInput": false,
+      "name": "motor1"
     }
   }
 }

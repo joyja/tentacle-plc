@@ -26,5 +26,19 @@
         "version": "spBv1.0"
       }
     }
+  },
+  "modbus" : {
+    "groovEpic": {
+      "description": "JAR Automation GroovEpic",
+      "config": {
+        "host": "192.168.50.235",
+        "port": 502,
+        "unitId": 0,
+        "reverseBits": false,
+        "reverseWords": false,
+        "zeroBased": false,
+        "retryRate": 5000
+      }
+    }
   }
 }

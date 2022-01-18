@@ -61,7 +61,7 @@ class Mqtt {
     })
     const payload = Object.keys(changed).map((key) => {
       return {
-        name: key.replace('.', '/'),
+        name: key.replaceAll('.', '/'),
         value: changed[key],
         type: getDatatype(changed[key]),
         timestamp: getUnixTime(new Date()),
@@ -135,17 +135,29 @@ class Mqtt {
   onDcmd(payload) {
     const { metrics } = payload
     metrics.forEach((metric) => {
-      const variablePath = metric.name.replace('/', '.')
+      const variablePath = metric.name
+        .replace('functions/', '')
+        .replaceAll('/', '.')
       const variable = _.get(this.global, variablePath)
       if (variable !== undefined) {
         if (typeof variable == 'boolean') {
-          console.log(metric.value)
           _.set(
             this.global,
             variablePath,
             (typeof metric.value === 'string' && metric.value === 'true') ||
               (typeof metric.value === 'boolean' && metric.value)
           )
+        } else if (typeof variable == 'function') {
+          // * Need to call the function from the parent to preserver 'this' in classes.
+          // * So pop off the function name, get the parent and call the function from the parent.
+          const variablePathParts = variablePath.split('.')
+          const functionName = variablePathParts.pop()
+          const parent = _.get(this.global, variablePathParts.join('.'))
+          if (variable.length === 0) {
+            parent[functionName]()
+          } else {
+            parent[functionName](...JSON.parse(metric.value))
+          }
         }
       } else {
         console.log(`${variablePath} does not exits.`)
@@ -160,11 +172,27 @@ class Mqtt {
     await this.client.publishNodeBirth(payload)
     const global = this.denormalizedGlobal
     const metrics = Object.keys(global).map((key) => {
-      return {
-        name: key.replace('.', '/'),
-        value: global[key],
-        type: getDatatype(global[key]),
-        timestamp: getUnixTime(new Date()),
+      if (typeof global[key] === 'string' && global[key].includes('function')) {
+        const keyParts = key.split('.')
+        keyParts.splice(keyParts.length - 1, 0, 'functions')
+        return {
+          name: keyParts.join('/'),
+          value:
+            global[key] === 'function0'
+              ? false
+              : `[${','.repeat(
+                  parseInt(global[key].replace('function', '')) - 1
+                )}]`,
+          type: global[key] === 'function0' ? 'BOOLEAN' : 'STRING',
+          timestamp: getUnixTime(new Date()),
+        }
+      } else {
+        return {
+          name: key.replaceAll('.', '/'),
+          value: global[key],
+          type: getDatatype(global[key]),
+          timestamp: getUnixTime(new Date()),
+        }
       }
     })
     await this.client.publishDeviceBirth(`${this.deviceName}`, {

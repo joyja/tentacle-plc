@@ -50,17 +50,24 @@ function denormalize(data, keys, map, layer = 0) {
   } else if (_isTimeout(data)) {
     // if it's a timeout ignore it (it won't denormalize properly)
   } else if (_isObject(data)) {
-    const classData = Object.getOwnPropertyDescriptors(Object.getPrototypeOf(data))
+    const classData = Object.getOwnPropertyDescriptors(
+      Object.getPrototypeOf(data)
+    )
     Object.keys(classData).forEach((propertyKey) => {
       if (classData[propertyKey].get !== undefined) {
         // console.log(keys)
-        map[createPropertyName([ ...keys, propertyKey])] = data[propertyKey]
-      } else if ( typeof classData[propertyKey].value === 'function' & layer > 0 && propertyKey !== 'constructor') {
-        map[createPropertyName([ ...keys, propertyKey])] = `function${classData[propertyKey].value.length}`
+        map[createPropertyName([...keys, propertyKey])] = data[propertyKey]
+      } else if (
+        (typeof classData[propertyKey].value === 'function') & (layer > 0) &&
+        propertyKey !== 'constructor'
+      ) {
+        map[
+          createPropertyName([...keys, propertyKey])
+        ] = `function${classData[propertyKey].value.length}`
       }
     })
     Object.keys(data).forEach(function (key) {
-      denormalize(data[key], keys.concat(key), map, layer = layer + 1)
+      denormalize(data[key], keys.concat(key), map, (layer = layer + 1))
     })
   } else {
     // console.log(keys)
