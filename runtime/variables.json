@@ -1,19 +1,19 @@
 {
   "count": {
-    "datatype": "Number",
+    "datatype": "number",
     "initialValue": 0,
     "description": "The number of times the main task has been run.",
     "persistent": true
   },
   "countSecondary": {
-    "datatype": "Number",
+    "datatype": "number",
     "initialValue": 0,
     "description": "The number of times the secondary task has been run.",
     "persistent": true
   },
   "officeTemp": {
     "description": "The temperature in James' office",
-    "datatype": "Number",
+    "datatype": "number",
     "initialValue": 0,
     "persistent": true,
     "source": {
