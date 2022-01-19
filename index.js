@@ -331,7 +331,7 @@ app.listen(4000, async () => {
     })
     Object.keys(variables).forEach((variableKey) => {
       const variable = variables[variableKey]
-      if (variable.datatype === 'Number') {
+      if (variable.datatype === 'number') {
         global[variableKey] = variable.initialValue
       } else if (classes.map((item) => item.name).includes(variable.datatype)) {
         variableClass = classes.find((item) => item.name === variable.datatype)

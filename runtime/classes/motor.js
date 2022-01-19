@@ -54,6 +54,38 @@ class Motor {
     this.startCommand = value
   }
 }
+Motor.variableConfiguration = {
+  startCount: {
+    description: 'Total start count',
+    datatype: 'number',
+    initialValue: 0,
+    persistent: true,
+  },
+  runtime: {
+    description: 'Total runtime',
+    datatype: 'number',
+    initialValue: 0,
+    persistent: true,
+  },
+  mode: {
+    description: 'Current mode (i.e. auto/manual)',
+    datatype: 'boolean',
+    initialValue: false,
+    persistent: true,
+  },
+  startCommand: {
+    description: 'Start output to the motor.',
+    datatype: 'boolean',
+    initialValue: false,
+    persistent: true,
+  },
+  prevRunning: {
+    description: 'The motor was running during the previous scan.',
+    datatype: 'boolean',
+    initialValue: false,
+    persistent: true,
+  },
+}
 Motor.persistentData = [
   'startCount',
   'runtime',
