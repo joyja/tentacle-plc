@@ -19,6 +19,18 @@ const config = JSON.parse(
 const variables = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, `runtime/variables.json`))
 )
+const classes = fs
+  .readdirSync(path.resolve(__dirname, 'runtime/classes'))
+  .map((filename) => {
+    const classes = require(path.resolve(
+      __dirname,
+      `runtime/classes/${filename}`
+    ))
+    return classes
+  })
+  .reduce((acc, current) => {
+    return [...acc, ...current]
+  })
 
 const app = express()
 app.use(cors())
@@ -47,6 +59,7 @@ const schema = buildSchema(`
     initialValue: String
     persistent: Boolean
     source: VariableSource
+    children: [Variable!]!
   }
   type configTask {
     name: String!
@@ -201,15 +214,32 @@ const rootValue = {
     }
   },
   variables: function (args, context, info) {
-    return Object.keys(context.variables).map((key) => {
-      return {
-        name: key,
-        description: context.variables[key].description
-          ? context.variables[key].description
-          : '',
-        ...context.variables[key],
-      }
-    })
+    try {
+
+      return Object.keys(context.variables).map((key) => {
+        const atomicDatatypes = ['string','boolean','number']
+        let children = []
+        if (!atomicDatatypes.includes(context.variables[key].datatype)) {
+          const variableClass = context.classes.find((item) => item.name === context.variables[key].datatype)
+          children = Object.keys(variableClass.variables).map((childKey) => {
+            return {
+              name: childKey,
+              ...variableClass.variables[childKey]
+            }
+          })
+        }
+        return {
+          name: key,
+          description: context.variables[key].description
+            ? context.variables[key].description
+            : '',
+          ...context.variables[key],
+          children
+        }
+      })
+    } catch (error) {
+      console.log(error)
+    }
   },
   runFunction: function (args, context, info) {
     const func = _.get(context.global, args.functionPath)
@@ -272,6 +302,7 @@ const rootValue = {
 }
 
 const context = {
+  classes,
   global,
   metrics,
   config,
@@ -297,18 +328,6 @@ app.use(
 
 app.listen(4000, async () => {
   try {
-    const classes = fs
-      .readdirSync(path.resolve(__dirname, 'runtime/classes'))
-      .map((filename) => {
-        const classes = require(path.resolve(
-          __dirname,
-          `runtime/classes/${filename}`
-        ))
-        return classes
-      })
-      .reduce((acc, current) => {
-        return [...acc, ...current]
-      })
     const intervals = []
     Object.keys(config.modbus).forEach((modbusKey) => {
       modbus[modbusKey] = new Modbus({

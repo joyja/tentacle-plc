@@ -20,7 +20,9 @@ class Persistence {
     Object.keys(this.global).forEach((key) => {
       if (this.classes.map(fb => fb.name).includes(this.global[key].constructor.name)) {
         // console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
-        this.global[key].constructor.persistentData.forEach((variableName) => {
+        Object.keys(this.global[key].constructor.variables).filter((variableName) => {
+          return this.global[key].constructor.variables[variableName].persistent
+        }).forEach((variableName) => {
           if (key in this.data && variableName in this.data[key]) {
             this.global[key][variableName] = this.data[key][variableName]
           }
@@ -39,7 +41,9 @@ class Persistence {
       if (this.classes.map(fb => fb.name).includes(this.global[key].constructor.name)) {
         // console.log(`${key} is an fb of type ${this.global[key].constructor.name}`)
         const fbData = {}
-        this.global[key].constructor.persistentData.forEach((variableName) => {
+        Object.keys(this.global[key].constructor.variables).filter((variableName) => {
+          return this.global[key].constructor.variables[variableName].persistent
+        }).forEach((variableName) => {
           // console.log(this.global[key])
           fbData[variableName] = this.global[key][variableName]
         })
