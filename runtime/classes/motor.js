@@ -54,7 +54,7 @@ class Motor {
     this.startCommand = value
   }
 }
-Motor.variableConfiguration = {
+Motor.variables = {
   startCount: {
     description: 'Total start count',
     datatype: 'number',
@@ -69,7 +69,7 @@ Motor.variableConfiguration = {
   },
   mode: {
     description: 'Current mode (i.e. auto/manual)',
-    datatype: 'boolean',
+    datatype: 'string',
     initialValue: false,
     persistent: true,
   },
@@ -86,12 +86,5 @@ Motor.variableConfiguration = {
     persistent: true,
   },
 }
-Motor.persistentData = [
-  'startCount',
-  'runtime',
-  'mode',
-  'startCommand',
-  'prevRunning',
-]
 
 module.exports = [Motor]
