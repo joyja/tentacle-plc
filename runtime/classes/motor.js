@@ -6,6 +6,7 @@ class Motor {
     this.runtime = 0
     this.startCount = 0
     this.startCommand = true
+    this.mode = 'manual'
     this.runtimeInterval = setInterval(() => {
       if (this.running) {
         this.runtime = this.runtime + 1 / 60

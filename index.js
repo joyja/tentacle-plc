@@ -215,16 +215,17 @@ const rootValue = {
   },
   variables: function (args, context, info) {
     try {
-
       return Object.keys(context.variables).map((key) => {
-        const atomicDatatypes = ['string','boolean','number']
+        const atomicDatatypes = ['string', 'boolean', 'number']
         let children = []
         if (!atomicDatatypes.includes(context.variables[key].datatype)) {
-          const variableClass = context.classes.find((item) => item.name === context.variables[key].datatype)
+          const variableClass = context.classes.find(
+            (item) => item.name === context.variables[key].datatype
+          )
           children = Object.keys(variableClass.variables).map((childKey) => {
             return {
               name: childKey,
-              ...variableClass.variables[childKey]
+              ...variableClass.variables[childKey],
             }
           })
         }
@@ -234,7 +235,7 @@ const rootValue = {
             ? context.variables[key].description
             : '',
           ...context.variables[key],
-          children
+          children,
         }
       })
     } catch (error) {
@@ -368,9 +369,11 @@ app.listen(4000, async () => {
       if (variable.source) {
         if (variable.source.type === 'modbus') {
           setInterval(() => {
-            modbus[variable.source.name]
-              .read(variable.source.params)
-              .then((result) => (global[variableKey] = result))
+            if (modbus[variable.source.name].connected) {
+              modbus[variable.source.name]
+                .read(variable.source.params)
+                .then((result) => (global[variableKey] = result))
+            }
           }, variable.source.rate)
         }
       }
