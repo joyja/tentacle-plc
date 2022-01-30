@@ -1,0 +1,49 @@
+{
+  "name": "tentacle-plc-ui",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "build:analyze": "nuxt build --analyze",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint": "npm run lint:js",
+    "test": "jest --watchAll",
+    "test:ci": "jest",
+    "test:coverage": "jest --coverage",
+    "coveralls": "jest --coverage --coverageReporters=text-lcov | coveralls",
+    "fix": "eslint --ext .js,.vue --fix --ignore-path .gitignore ."
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "^0.4.0",
+    "clipboard": "^2.0.8",
+    "core-js": "^3.15.1",
+    "nuxt": "^2.15.7",
+    "prismjs": "^1.26.0"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.14.7",
+    "@nuxt/postcss8": "^1.1.3",
+    "@nuxtjs/eslint-config": "^6.0.1",
+    "@nuxtjs/eslint-module": "^3.0.2",
+    "@nuxtjs/google-fonts": "^1.3.0",
+    "@vue/test-utils": "^1.2.1",
+    "autoprefixer": "^10.4.2",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^27.0.5",
+    "coveralls": "^3.1.1",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-nuxt": "^2.0.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^7.12.1",
+    "jest": "^27.0.5",
+    "nuxt-graphql-request": "^4.3.0",
+    "postcss": "^8.3.5",
+    "prettier": "^2.3.2",
+    "tailwindcss": "^3.0.12",
+    "vue-jest": "^3.0.4"
+  }
+}
