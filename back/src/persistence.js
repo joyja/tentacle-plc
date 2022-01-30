@@ -5,7 +5,7 @@ const path = require('path')
 
 class Persistence {
   constructor({
-    filepath = path.resolve(__dirname, 'runtime/persistence.json'),
+    filepath = path.resolve(process.cwd(), 'runtime/persistence.json'),
     variables,
     global,
     classes,

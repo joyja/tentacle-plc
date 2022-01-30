@@ -12,18 +12,17 @@ const denormalize = require('./denormalize')
 const recursiveReaddir = require('./recursiveReaddir.js')
 const Mqtt = require('./mqtt')
 const Modbus = require('./modbus')
-
 const config = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, 'runtime/config.json'))
+  fs.readFileSync(path.resolve(process.cwd(), 'runtime/config.json'))
 )
 const variables = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, `runtime/variables.json`))
+  fs.readFileSync(path.resolve(process.cwd(), `runtime/variables.json`))
 )
 const classes = fs
-  .readdirSync(path.resolve(__dirname, 'runtime/classes'))
+  .readdirSync(path.resolve(process.cwd(), 'runtime/classes'))
   .map((filename) => {
     const classes = require(path.resolve(
-      __dirname,
+      process.cwd(),
       `runtime/classes/${filename}`
     ))
     return classes
@@ -36,96 +35,96 @@ const app = express()
 app.use(cors())
 
 const schema = buildSchema(`
-  type atomicVariable {
-    path: String!
-    value: String!
-    datatype: String!
-  }
-  type VariableSourceParams {
-    register: Int!
-    registerType: String!
-    format: String!
-  }
-  type VariableSource {
-    type: String!
-    name: String!
-    rate: Int!
-    params: VariableSourceParams
-  }
-  type Variable {
-    name: String!
-    description: String
-    datatype: String!
-    initialValue: String
-    persistent: Boolean
-    source: VariableSource
-    children: [Variable!]!
-  }
-  type configTask {
-    name: String!
-    description: String!
-    scanRate: Int!
-    program: String!
-  }
-  type configMqttConfig {
-    serverUrl: String
-    groupId: String
-    username: String
-    password: String
-    edgeNode: String
-    deviceName: String
-    clientId: String
-    version: String
-  }
-  type configModbusConfig {
-    host: String
-    port: Int
-    unitId: Int,
-    reverseBits: Boolean,
-    reverseWords: Boolean,
-    zeroBased: Boolean,
-    retryRate: Int
-  }
-  type configMqtt {
-    name: String!
-    description: String!
-    config: configMqttConfig!
-  }
-  type configModbus {
-    name: String!
-    description: String!
-    config: configModbusConfig!
-  }
-  type config {
-    tasks: [configTask!]!
-    mqtt: [configMqtt!]!
-    modbus: [configModbus!]!
-  }
-  type taskMetric {
-    task: String!
-    functionExecutionTime: Float!
-    intervalExecutionTime: Float!
-    totalScanTime: Float!
-  }
-  type Mutation {
-    setValue(variablePath: String!, value: String!): atomicVariable
-    runFunction(functionPath: String!, args: String): String
-  }
-  type Query {
-    info: String!
-    metrics: [taskMetric!]!
-    value(variablePath: String!): atomicVariable
-    values: [atomicVariable!]!
-    variables: [Variable!]!
-    programs: [String!]!
-    program(name: String!): String!
-    functions: [String!]!
-    function(name: String!): String!
-    classes: [String!]!
-    class(name: String!): String!
-    configuration: config!
-  }
-`)
+    type atomicVariable {
+      path: String!
+      value: String!
+      datatype: String!
+    }
+    type VariableSourceParams {
+      register: Int!
+      registerType: String!
+      format: String!
+    }
+    type VariableSource {
+      type: String!
+      name: String!
+      rate: Int!
+      params: VariableSourceParams
+    }
+    type Variable {
+      name: String!
+      description: String
+      datatype: String!
+      initialValue: String
+      persistent: Boolean
+      source: VariableSource
+      children: [Variable!]!
+    }
+    type configTask {
+      name: String!
+      description: String!
+      scanRate: Int!
+      program: String!
+    }
+    type configMqttConfig {
+      serverUrl: String
+      groupId: String
+      username: String
+      password: String
+      edgeNode: String
+      deviceName: String
+      clientId: String
+      version: String
+    }
+    type configModbusConfig {
+      host: String
+      port: Int
+      unitId: Int,
+      reverseBits: Boolean,
+      reverseWords: Boolean,
+      zeroBased: Boolean,
+      retryRate: Int
+    }
+    type configMqtt {
+      name: String!
+      description: String!
+      config: configMqttConfig!
+    }
+    type configModbus {
+      name: String!
+      description: String!
+      config: configModbusConfig!
+    }
+    type config {
+      tasks: [configTask!]!
+      mqtt: [configMqtt!]!
+      modbus: [configModbus!]!
+    }
+    type taskMetric {
+      task: String!
+      functionExecutionTime: Float!
+      intervalExecutionTime: Float!
+      totalScanTime: Float!
+    }
+    type Mutation {
+      setValue(variablePath: String!, value: String!): atomicVariable
+      runFunction(functionPath: String!, args: String): String
+    }
+    type Query {
+      info: String!
+      metrics: [taskMetric!]!
+      value(variablePath: String!): atomicVariable
+      values: [atomicVariable!]!
+      variables: [Variable!]!
+      programs: [String!]!
+      program(name: String!): String!
+      functions: [String!]!
+      function(name: String!): String!
+      classes: [String!]!
+      class(name: String!): String!
+      configuration: config!
+    }
+  `)
 
 let mainInterval
 
@@ -263,42 +262,42 @@ const rootValue = {
   },
   program: function (args, context, info) {
     return fs.readFileSync(
-      path.resolve(__dirname, 'runtime/programs', args.name),
+      path.resolve(process.cwd(), 'runtime/programs', args.name),
       { encoding: 'utf8', flag: 'r' }
     )
   },
   program: function (args, context, info) {
     return fs.readFileSync(
-      path.resolve(__dirname, 'runtime/programs', args.name),
+      path.resolve(process.cwd(), 'runtime/programs', args.name),
       { encoding: 'utf8', flag: 'r' }
     )
   },
   programs: function (args, context, info) {
-    return recursiveReaddir(path.resolve(__dirname, 'runtime/programs')).map(
-      (file) => file.replace(`${__dirname}/runtime/programs/`, '')
-    )
+    return recursiveReaddir(
+      path.resolve(process.cwd(), 'runtime/programs')
+    ).map((file) => file.replace(`${process.cwd()}/runtime/programs/`, ''))
   },
   function: function (args, context, info) {
     return fs.readFileSync(
-      path.resolve(__dirname, 'runtime/functions', args.name),
+      path.resolve(process.cwd(), 'runtime/functions', args.name),
       { encoding: 'utf8', flag: 'r' }
     )
   },
   functions: function (args, context, info) {
     return fs
-      .readdirSync(path.resolve(__dirname, 'runtime/functions'))
-      .map((file) => file.replace(`${__dirname}/runtime/functions/`, ''))
+      .readdirSync(path.resolve(process.cwd(), 'runtime/functions'))
+      .map((file) => file.replace(`${process.cwd()}/runtime/functions/`, ''))
   },
   class: function (args, context, info) {
     return fs.readFileSync(
-      path.resolve(__dirname, 'runtime/classes', args.name),
+      path.resolve(process.cwd(), 'runtime/classes', args.name),
       { encoding: 'utf8', flag: 'r' }
     )
   },
   classes: function (args, context, info) {
     return fs
-      .readdirSync(path.resolve(__dirname, 'runtime/classes'))
-      .map((file) => file.replace(`${__dirname}/runtime/classes/`, ''))
+      .readdirSync(path.resolve(process.cwd(), 'runtime/classes'))
+      .map((file) => file.replace(`${process.cwd()}/runtime/classes/`, ''))
   },
 }
 
@@ -326,6 +325,9 @@ app.use(
     context,
   })
 )
+
+var errorHandler = require('errorhandler')
+app.use(errorHandler({ dumpExceptions: true, showStack: true }))
 
 app.listen(4000, async () => {
   try {
@@ -391,7 +393,7 @@ app.listen(4000, async () => {
             functionStart = process.hrtime()
             try {
               await require(path.resolve(
-                __dirname,
+                process.cwd(),
                 `runtime/programs/${config.tasks[taskKey].program}.js`
               ))({ global })
               functionStop = process.hrtime(functionStart)
@@ -417,4 +419,10 @@ app.listen(4000, async () => {
   } catch (error) {
     console.log(error)
   }
+})
+
+process.on('uncaughtException', function (exception) {
+  console.log(exception) // to see your exception details in the console
+  // if you are on production, maybe you can send the exception details to your
+  // email as well ?
 })
