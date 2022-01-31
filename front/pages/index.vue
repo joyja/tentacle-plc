@@ -231,7 +231,7 @@ const query = function(queryName, query){
   if (process.client) {
     endpoint = `http://${window.location.hostname}:4000`
   } else {
-    endpoint = `http://localhost:4000`
+    endpoint = `http://${process.env.TENTACLE_CLIENT_HOST}:4000`
   }
   return fetch(endpoint, {
     method: 'POST',
