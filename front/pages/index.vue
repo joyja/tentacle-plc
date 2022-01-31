@@ -7,68 +7,83 @@
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           Tasks
         </div>
-        <div
-          v-for="task in configuration.tasks"
-          :key="task.name"
-        >
-          <div class="pt-3 px-3 pb-1 flex justify-between items-center">
-            <div class="flex flex-col">
-              <p>{{ task.name }}</p>
-              <p class="text-sm text-slate-600">{{ task.description }}</p>
-            </div>
-            <div class="grow px-3">
-              <p class="text-right">{{ task.program }}.js</p>
-            </div>
-            <div class="flex items-center">
-              <div class="inline-flex items-center p-1 border border-transparent rounded-full shadow-sm text-white bg-slate-700">
-              <!-- Heroicon name: solid/pencil -->
-                <p class="text-center text-xs leading-none">{{ task.scanRate }}</p>
-                <p class="text-xs py-0 my-0 leading-none">ms</p>
+        <div v-if="configuration.tasks.length > 0">
+          <div
+            v-for="task in configuration.tasks"
+            :key="task.name"
+          >
+            <div class="pt-3 px-3 pb-1 flex justify-between items-center">
+              <div class="flex flex-col">
+                <p>{{ task.name }}</p>
+                <p class="text-sm text-slate-600">{{ task.description }}</p>
+              </div>
+              <div class="grow px-3">
+                <p class="text-right">{{ task.program }}.js</p>
+              </div>
+              <div class="flex items-center">
+                <div class="inline-flex items-center p-1 border border-transparent rounded-full shadow-sm text-white bg-slate-700">
+                <!-- Heroicon name: solid/pencil -->
+                  <p class="text-center text-xs leading-none">{{ task.scanRate }}</p>
+                  <p class="text-xs py-0 my-0 leading-none">ms</p>
+                </div>
               </div>
             </div>
+            <div class="flex justify-between text-slate-500">
+              <div class="text-xs px-1">{{ getTaskMetrics(task.name).intervalExecutionTime }} ms</div>
+              <div class="text-xs px-1">{{ getTaskMetrics(task.name).functionExecutionTime }} ms</div>
+            </div>
+            <div class="flex rounded-full mx-1 mb-1 overflow-hidden">
+              <div class="bg-indigo-500" :style="{ 'height': '3px', 'flex-basis': `${getTaskMetrics(task.name).intervalExecutionTimePercent}%` }"></div>
+              <div class="bg-green-500" :style="{ 'height': '3px', 'flex-basis': `${getTaskMetrics(task.name).functionExecutionTimePercent }%`}"></div>
+            </div>
           </div>
-          <div class="flex justify-between text-slate-500">
-            <div class="text-xs px-1">{{ getTaskMetrics(task.name).intervalExecutionTime }} ms</div>
-            <div class="text-xs px-1">{{ getTaskMetrics(task.name).functionExecutionTime }} ms</div>
-          </div>
-          <div class="flex rounded-full mx-1 mb-1 overflow-hidden">
-            <div class="bg-indigo-500" :style="{ 'height': '3px', 'flex-basis': `${getTaskMetrics(task.name).intervalExecutionTimePercent}%` }"></div>
-            <div class="bg-green-500" :style="{ 'height': '3px', 'flex-basis': `${getTaskMetrics(task.name).functionExecutionTimePercent }%`}"></div>
-          </div>
+        </div>
+        <div v-else class="p-2">
+          <p>There are no configured tasks.</p>
         </div>
       </div>
       <div class="drop-shadow-md rounded bg-slate-300 my-3">
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           MQTT
         </div>
-        <div
-          v-for="mqtt in configuration.mqtt"
-          :key="mqtt.name"
-        >
-          <div class="pt-3 px-3 pb-1 flex justify-between items-center">
-            <div class="flex flex-col">
-              <p>{{ mqtt.name }}</p>
-              <p class="text-sm text-slate-600">{{ mqtt.description }}</p>
-              <p class="text-sm text-slate-600">{{ mqtt.config.serverUrl }}</p>
+        <div v-if="configuration.mqtt.length > 0">
+          <div
+            v-for="mqtt in configuration.mqtt"
+            :key="mqtt.name"
+          >
+            <div class="pt-3 px-3 pb-1 flex justify-between items-center">
+              <div class="flex flex-col">
+                <p>{{ mqtt.name }}</p>
+                <p class="text-sm text-slate-600">{{ mqtt.description }}</p>
+                <p class="text-sm text-slate-600">{{ mqtt.config.serverUrl }}</p>
+              </div>
             </div>
           </div>
+        </div>
+        <div v-else class="p-2">
+          There are no MQTT connections configured.
         </div>
       </div>
       <div class="drop-shadow-md rounded bg-slate-300 my-3">
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           Modbus
         </div>
-        <div
-          v-for="modbus in configuration.modbus"
-          :key="modbus.name"
-        >
-          <div class="pt-3 px-3 pb-1 flex justify-between items-center">
-            <div class="flex flex-col">
-              <p>{{ modbus.name }}</p>
-              <p class="text-sm text-slate-600">{{ modbus.description }}</p>
-              <p class="text-sm text-slate-600">tcp://{{ modbus.config.host }}:{{ modbus.config.port}}</p>
+        <div v-if="configuration.modbus.length > 0">
+          <div
+            v-for="modbus in configuration.modbus"
+            :key="modbus.name"
+          >
+            <div class="pt-3 px-3 pb-1 flex justify-between items-center">
+              <div class="flex flex-col">
+                <p>{{ modbus.name }}</p>
+                <p class="text-sm text-slate-600">{{ modbus.description }}</p>
+                <p class="text-sm text-slate-600">tcp://{{ modbus.config.host }}:{{ modbus.config.port}}</p>
+              </div>
             </div>
           </div>
+        </div>
+        <div class="p-2">
+          <p>There are no Modbus connections configured.</p>
         </div>
       </div>
     </div>
@@ -78,64 +93,69 @@
           Global Variables
         </div>
         <div class="p-2">
-          <div v-for="variable in variablesDetailed" :key="variable.name">
-            <div class="flex justify-between py-1">
-              <div class="pr-5 flex items-center">
-                <p class="pr-1">{{ variable.name }}</p>
-                <div v-if="variable.persistent" class="inline-flex items-center justify-center p-1 rounded-full text-white bg-slate-400 text-xs" style="height: 20px; width: 20px; margin-right: 1px;">P</div>
-                <div v-if="variable.source" class="inline-flex items-center p-1 border border-transparent rounded-full text-white bg-slate-400">
-                  <!-- Heroicon name: solid/plus-sm -->
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>    
-                </div>
-              </div>
-              <div v-if="variable.value">
-                <!-- Enabled: "bg-indigo-600", Not Enabled: "bg-gray-200" -->
-                <button v-if="variable.datatype === 'boolean'" type="button" :class="[variable.value === 'true' ? 'bg-orange-400' : 'bg-gray-400', 'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500']" role="switch" :aria-checked="variable.value === 'true'" @click="toggle(variable.path)">
-                  <span class="sr-only">Use setting</span>
-                  <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
-                  <span aria-hidden="true" :class="[variable.value === 'true' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200']"></span>
-                </button>
-                <button v-else-if="variable.datatype === 'string' && variable.value==='function0'" type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-slate-600 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500" @click="runFunction(variable.name)">
-                  Run Function
-                </button>
-                <div v-else class="font-mono text-right">{{ variable.datatype === 'number' ? Math.round((parseFloat(variable.value) + Number.EPSILON)* 100)/100 : variable.value }}</div>
-              </div>
-            </div>
-            <div v-if="variable.values" class="flex flex-col">
-              <div v-for="property in variable.values" :key="property.name" class="flex justify-between py-1">
+          <div v-if="variablesDetailed.length > 0">
+            <div v-for="variable in variablesDetailed" :key="variable.name">
+              <div class="flex justify-between py-1">
                 <div class="pr-5 flex items-center">
-                  <div class="text-slate-400 pb-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20 16L14.5 21.5L13.08 20.09L16.17 17H10.5C6.91 17 4 14.09 4 10.5V4H6V10.5C6 13 8 15 10.5 15H16.17L13.09 11.91L14.5 10.5L20 16Z"/>
-                    </svg>
-                  </div>
-                  <p class="pr-1">
-                    {{ property.name }}
-                  </p>
-                  <div v-if="property.persistent" class="inline-flex items-center justify-center p-1 rounded-full text-white bg-slate-400 text-xs h-5 w-5">P</div>
-                  <div v-if="property.source" class="inline-flex items-center p-1 border border-transparent rounded-full text-white bg-slate-400">
+                  <p class="pr-1">{{ variable.name }}</p>
+                  <div v-if="variable.persistent" class="inline-flex items-center justify-center p-1 rounded-full text-white bg-slate-400 text-xs" style="height: 20px; width: 20px; margin-right: 1px;">P</div>
+                  <div v-if="variable.source" class="inline-flex items-center p-1 border border-transparent rounded-full text-white bg-slate-400">
                     <!-- Heroicon name: solid/plus-sm -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>    
                   </div>
                 </div>
-                <div class="flex">
+                <div v-if="variable.value">
                   <!-- Enabled: "bg-indigo-600", Not Enabled: "bg-gray-200" -->
-                  <button v-if="property.datatype === 'boolean'" type="button" :class="[property.value === 'true' ? 'bg-orange-400' : 'bg-gray-400', 'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500']" role="switch" :aria-checked="property.value === 'true'" @click="toggle(property.path)">
+                  <button v-if="variable.datatype === 'boolean'" type="button" :class="[variable.value === 'true' ? 'bg-orange-400' : 'bg-gray-400', 'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500']" role="switch" :aria-checked="variable.value === 'true'" @click="toggle(variable.path)">
                     <span class="sr-only">Use setting</span>
                     <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
-                    <span aria-hidden="true" :class="[property.value === 'true' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200']"></span>
+                    <span aria-hidden="true" :class="[variable.value === 'true' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200']"></span>
                   </button>
-                  <button v-else-if="property.datatype === 'string' && property.value==='function0'" type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-slate-600 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500" @click="runFunction(property.path)">
+                  <button v-else-if="variable.datatype === 'string' && variable.value==='function0'" type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-slate-600 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500" @click="runFunction(variable.name)">
                     Run Function
                   </button>
-                  <div v-else class="font-mono text-right">{{ property.datatype === 'number' ? Math.round((parseFloat(property.value) + Number.EPSILON)* 100)/100 : property.value }}</div>
+                  <div v-else class="font-mono text-right">{{ variable.datatype === 'number' ? Math.round((parseFloat(variable.value) + Number.EPSILON)* 100)/100 : variable.value }}</div>
                 </div>
               </div>
-            </div> 
+              <div v-if="variable.values" class="flex flex-col">
+                <div v-for="property in variable.values" :key="property.name" class="flex justify-between py-1">
+                  <div class="pr-5 flex items-center">
+                    <div class="text-slate-400 pb-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 16L14.5 21.5L13.08 20.09L16.17 17H10.5C6.91 17 4 14.09 4 10.5V4H6V10.5C6 13 8 15 10.5 15H16.17L13.09 11.91L14.5 10.5L20 16Z"/>
+                      </svg>
+                    </div>
+                    <p class="pr-1">
+                      {{ property.name }}
+                    </p>
+                    <div v-if="property.persistent" class="inline-flex items-center justify-center p-1 rounded-full text-white bg-slate-400 text-xs h-5 w-5">P</div>
+                    <div v-if="property.source" class="inline-flex items-center p-1 border border-transparent rounded-full text-white bg-slate-400">
+                      <!-- Heroicon name: solid/plus-sm -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>    
+                    </div>
+                  </div>
+                  <div class="flex">
+                    <!-- Enabled: "bg-indigo-600", Not Enabled: "bg-gray-200" -->
+                    <button v-if="property.datatype === 'boolean'" type="button" :class="[property.value === 'true' ? 'bg-orange-400' : 'bg-gray-400', 'relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500']" role="switch" :aria-checked="property.value === 'true'" @click="toggle(property.path)">
+                      <span class="sr-only">Use setting</span>
+                      <!-- Enabled: "translate-x-5", Not Enabled: "translate-x-0" -->
+                      <span aria-hidden="true" :class="[property.value === 'true' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200']"></span>
+                    </button>
+                    <button v-else-if="property.datatype === 'string' && property.value==='function0'" type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-slate-600 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500" @click="runFunction(property.path)">
+                      Run Function
+                    </button>
+                    <div v-else class="font-mono text-right">{{ property.datatype === 'number' ? Math.round((parseFloat(property.value) + Number.EPSILON)* 100)/100 : property.value }}</div>
+                  </div>
+                </div>
+              </div> 
+            </div>
+          </div>
+          <div v-else>
+            <p>There are no global variables defined.</p>
           </div>
         </div>
       </div>
