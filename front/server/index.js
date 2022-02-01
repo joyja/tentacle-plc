@@ -6,7 +6,7 @@ const { loadNuxt, build: nuxtBuild } = require('nuxt')
 const build = async (ifNotExists = false) => {
   let skip = false
   if (ifNotExists) {
-    skip = fs.existsSync(path.join(__dirname, '../', '.nuxt'))
+    skip = fs.existsSync(path.join(process.cwd(), '.nuxt'))
   }
   if (!skip) {
     const nuxt = await loadNuxt({

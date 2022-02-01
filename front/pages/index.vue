@@ -226,12 +226,20 @@
 
 <script>
 import Prism from '~/plugins/prism'
+const serverHost = process.env.TENTACLE_SERVER_HOST || 'localhost'
+const serverProtocol = process.env.TENTACLE_SERVER_SECURE || 'http'
+const serverPort = process.env.TENTACLE_SERVER_PORT || 4000
+const serverUrl = process.env.TENTACLE_SERVER_URL || '/'
+const clientHost = process.env.TENTACLE_CLIENT_HOST || process.client ? window.location.hostname : ''
+const clientProtocol = process.env.TENTACLE_CLIENT_SECURE || 'http'
+const clientPort = process.env.TENTACLE_CLIENT_PORT || 4000
+const clientUrl = process.env.TENTACLE_CLIENT_URL || '/'
 const query = function(queryName, query){
   let endpoint
-  if (process.client) {
-    endpoint = `http://${window.location.hostname}:4000`
+  if (process.client) {4
+    endpoint = `${clientProtocol}://${clientHost}:${clientPort}${clientUrl}`
   } else {
-    endpoint = `http://${process.env.TENTACLE_CLIENT_HOST || 'localhost'}:4000`
+    endpoint = `${serverProtocol}://${serverHost}:${serverPort}${serverUrl}`
   }
   return fetch(endpoint, {
     method: 'POST',
