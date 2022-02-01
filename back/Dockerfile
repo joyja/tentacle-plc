@@ -1,9 +1,9 @@
 FROM keymetrics/pm2:16-buster
 
 # Bundle APP files
-COPY src src/
-COPY package.json .
-COPY ecosystem.config.js .
+COPY back/src src/
+COPY back/package.json .
+COPY back/ecosystem.config.js .
 
 # Install app dependencies
 ENV NPM_CONFIG_LOGLEVEL warn
