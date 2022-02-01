@@ -1,6 +1,6 @@
 {
   "name": "tentacle-plc-back",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Modern SoftPLC",
   "main": "index.js",
   "scripts": {
