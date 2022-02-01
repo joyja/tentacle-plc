@@ -3,5 +3,6 @@
   "workspaces": [
     "front",
     "back"
-  ]
+  ],
+  "version": "0.0.1"
 }
