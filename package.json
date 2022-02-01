@@ -1,0 +1,7 @@
+{
+  "name": "tentacle-plc",
+  "workspaces": [
+    "front",
+    "back"
+  ]
+}
