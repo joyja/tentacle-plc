@@ -1,7 +1,7 @@
-FROM keymetrics/pm2:latest-stretch
+FROM keymetrics/pm2:16-buster
 
 # Bundle APP files
-COPY . src/
+COPY front src/
 WORKDIR src
 
 # Install app dependencies
