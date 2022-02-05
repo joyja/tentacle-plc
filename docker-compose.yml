@@ -1,0 +1,38 @@
+services:
+  tentacle-plc:
+    restart: always
+    container_name: tentacle-plc
+    image:  joyja/tentacle-plc:0.0.5
+    ports:
+      - 4000:4000
+    volumes:
+      - tentacle-plc-runtime:/runtime:rw
+    networks:
+      - upstream
+  tentacle-plc-front:
+    restart: always
+    container_name: tentacle-plc-ui
+    image:  joyja/tentacle-plc-front:0.0.5
+    ports:
+      - 3000:3000
+    networks:
+      - upstream
+    environment:
+      - TENTACLE_SERVER_HOST=tentacle-plc
+  code-server:
+    user: 0:0
+    restart: always
+    container_name: tentacle-plc-code-server
+    image: codercom/code-server:4.0.2
+    ports:
+      - 8080:8080
+    networks:
+      - upstream
+    volumes:
+      - tentacle-plc-runtime:/home/coder/project:rw
+    environment:
+      - DOCKER_USER=root
+networks:
+  upstream: {}
+volumes:
+  tentacle-plc-runtime: {}
