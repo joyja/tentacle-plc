@@ -2,12 +2,12 @@
   <div
     class="flex p-3 bg-slate-100 m-0 overflow-visible"
     style="min-height: calc(100vh - 60px)">
-    <div class="flex flex-col" style="flex-basis: 300px">
+      <div class="flex flex-col" style="flex-basis: 300px">
       <div class="drop-shadow-md rounded bg-slate-300 my-3">
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           Tasks
         </div>
-        <div v-if="configuration.tasks.length > 0">
+        <div v-if="configuration.tasks && configuration.tasks.length > 0">
           <div
             v-for="task in configuration.tasks"
             :key="task.name"
@@ -46,7 +46,7 @@
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           MQTT
         </div>
-        <div v-if="configuration.mqtt.length > 0">
+        <div v-if="configuration && configuration.mqtt && configuration.mqtt.length > 0">
           <div
             v-for="mqtt in configuration.mqtt"
             :key="mqtt.name"
@@ -68,7 +68,7 @@
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           Modbus
         </div>
-        <div v-if="configuration.modbus.length > 0">
+        <div v-if="configuration && configuration.modbus && configuration.modbus.length > 0">
           <div
             v-for="modbus in configuration.modbus"
             :key="modbus.name"
@@ -93,7 +93,7 @@
           Global Variables
         </div>
         <div class="p-2">
-          <div v-if="variablesDetailed.length > 0">
+          <div v-if="variablesDetailed && variablesDetailed.length > 0">
             <div v-for="variable in variablesDetailed" :key="variable.name">
               <div class="flex justify-between py-1">
                 <div class="pr-5 flex items-center">
@@ -200,7 +200,7 @@
               <button 
                 type="button" 
                 class="inline-flex items-center p-1 border border-transparent rounded-full shadow-sm text-white bg-slate-700 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-600"
-                @click="toggleCodeVisible(code.name, code.type)"
+                @click="toggleCodeVisible({ codeName: code.name, codeType: code.type })"
               >
               <!-- Heroicon name: solid/pencil -->
                 <svg xmlns="http://www.w3.org/2000/svg" 
@@ -225,248 +225,33 @@
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions } from 'vuex'
 import Prism from '~/plugins/prism'
-const serverHost = process.env.TENTACLE_SERVER_HOST || 'localhost'
-const serverProtocol = process.env.TENTACLE_SERVER_SECURE || 'http'
-const serverPort = process.env.TENTACLE_SERVER_PORT || 4000
-const serverUrl = process.env.TENTACLE_SERVER_URL || '/'
-const clientHost = process.env.TENTACLE_CLIENT_HOST || process.client ? window.location.hostname : ''
-const clientProtocol = process.env.TENTACLE_CLIENT_SECURE || 'http'
-const clientPort = process.env.TENTACLE_CLIENT_PORT || 4000
-const clientUrl = process.env.TENTACLE_CLIENT_URL || '/'
-const query = function(queryName, query){
-  let endpoint
-  if (process.client) {4
-    endpoint = `${clientProtocol}://${clientHost}:${clientPort}${clientUrl}`
-  } else {
-    endpoint = `${serverProtocol}://${serverHost}:${serverPort}${serverUrl}`
-  }
-  return fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-    }),
-  })
-    .then((r) => r.json())
-    .then((data) => data.data[queryName])
-}
-const queryValues = function () {
-  return query('values', `query Values {
-      values {
-        path
-        value
-        datatype
-      }
-    }`)
-}
-const queryVariables = function () {
-  return query('variables', `query Variables {
-  variables {
-    name
-    description
-    datatype
-    initialValue
-    persistent
-    children{
-      name
-      description
-      datatype
-      initialValue
-      persistent
-    }
-    source {
-      name
-      type
-      rate
-      params {
-        register
-      }
-    }
-  }
-}`)
-}
-const queryConfig = function () {
-  return query( 'configuration', `query Configuration {
-      configuration {
-        tasks {
-          name
-          description
-          scanRate
-          program
-        }
-        mqtt {
-          name
-          description
-          config {
-            serverUrl
-          }
-        }
-        modbus {
-          name
-          description
-          config {
-            host
-            port
-          }
-        }
-      }
-    }`)
-}
-const queryMetrics = function () {
-    return query('metrics',`query Metrics {
-      metrics {
-        task
-        functionExecutionTime,
-        intervalExecutionTime,
-        totalScanTime
-      }
-    }`)
-}
-const queryPrograms = function () {
-  return query('programs', `query Programs {
-    programs
-  }`)
-}
-const queryClasses = function () {
-  return query('classes', `query Classes {
-    classes
-  }`)
-}
-const queryProgram = function (selector) {
-  return query('program', `query Program {
-    program(name: "${selector}")
-  }`)
-}
-const queryClass = function (selector) {
-  return query('class', `query Class {
-    class(name: "${selector}")
-  }`)
-}
-const setValue = function (variablePath, value) {
-  return query('setValue', `mutation SetValue {
-    setValue(
-      variablePath: "${variablePath}"
-      value: "${value}"
-    ) {
-      path
-      value
-      datatype
-    }
-  }`)
-}
-const runFunction = function (functionPath, args) {
-  return query('runFunction', `mutation RunFunction {
-    runFunction(
-      functionPath: "${functionPath}"
-      args: "${JSON.stringify(args)}"
-    )
-  }`)
-}
 export default {
-  async asyncData({req}) {
+  asyncData({req}) {
     return {
-      values: await queryValues(),
-      configuration: await queryConfig(),
-      metrics: await queryMetrics(),
-      programs: await queryPrograms().then((result) => {
-        return result.reduce((acc, program) => {
-          return {
-            ...acc,
-            [program]: {
-              visible: false,
-              loading: false,
-              code: ''
-            }
-          }
-        },{})
-      }),
-      // codeMain: await queryProgram('main.js'),
-      classes: await queryClasses().then((result) => {
-        return result.reduce((acc, cls) => {
-          return {
-            ...acc,
-            [cls]: {
-              visible: false,
-              loading: false,
-              code: ''
-            }
-          }
-        },{})
-      }),
-      // codeMotor: await queryClass('motor.js'),
-      variables: await queryVariables(),
       hostname: process.server ? req.headers.host.split(':')[0] : window.location.hostname
     }
   },
   data() {
     return {
-      interval: null
+      interval: null,
     }
   },
   computed: {
-    codes() {
-      return [
-        ...Object.keys(this.programs).map((key) => {
-          return {
-            name: key,
-            type: 'program',
-            ...this.programs[key],
-          }
-        }),
-        ...Object.keys(this.classes).map((key) => {
-          return {
-            name: key,
-            type: 'class',
-            ...this.classes[key],
-          }
-        })
-      ]
-    },
-    variablesDetailed() {
-      return this.variables.map((variable) => {
-        const atomicTypes = ['string', 'boolean', 'number']
-        const contextParams = {}
-        if (atomicTypes.includes(variable.datatype)) {
-          const value = this.values.find((value) => value.path === variable.name)
-          if (value.datatype === 'string' && 'function' in value.value) {
-            contextParams.datatype = 'function'
-            contextParams.argumentCount = parseInt(value.value.replace('function',''))
-          } else {
-            contextParams.datatype = value.datatype
-            contextParams.value = value.value
-          }
-        } else {
-          const children = variable.children.map((child) => {
-            const value = this.values.find((value) => value.path === `${variable.name}.${child.name}`).value
-            return {
-              ...child,
-              value
-            }
-          })
-          const values = this.values
-            .filter((value) => value.path.split('.')[0] === variable.name)
-            .map((value) => {
-              const child = children.find((child) => child.name === value.path.split('.').slice(1).join('.')) || {} 
-              return {
-                name: value.path.split('.').slice(1).join('.'),
-                path: value.path,
-                datatype: child.datatype ? child.datatype : value.datatype,
-                value: value.value,
-                ...child
-              }
-            })
-          contextParams.values = values
-        }
-        return {
-          ...variable,
-          ...contextParams,
-        }
-      }) 
-    }
+    ...mapState([
+        'values',
+        'configuration',
+        'metrics',
+        'programs',
+        'classes',
+        'variables',
+        'plc'
+      ]),
+    ...mapGetters([
+      'codes',
+      'variablesDetailed'
+    ])
   },
   updated() {
     Prism.highlightAll()
@@ -474,12 +259,8 @@ export default {
   mounted() {
     Prism.highlightAll()
     this.interval = setInterval(() => {
-      queryValues().then((result) => {
-        this.values = result
-      })
-      queryMetrics().then((result) => {
-        this.metrics = result
-      })
+      this.fetchValues()
+      this.fetchMetrics()
     }, 1000)
   },
   beforeUnmount() {
@@ -487,63 +268,27 @@ export default {
   },
   methods: {
     toggle(path) {
-      setValue(path, !(this.values.find((value) => value.path === path).value === 'true'))
+      this.setValue(path, !(this.values.find((value) => value.path === path).value === 'true'))
     },
     runFunction(path, args) {
-      runFunction(path, args)
+      this.runFunction(path, args)
     },
     getTaskMetrics(taskName) {
       const metric = this.metrics.find((metric) => metric.task === taskName)
       return {
-        intervalExecutionTime: parseFloat(metric.intervalExecutionTime).toFixed(2),
-        functionExecutionTime: parseFloat(metric.functionExecutionTime).toFixed(2),
-        intervalExecutionTimePercent: 100 * (metric.intervalExecutionTime / (metric.intervalExecutionTime + metric.functionExecutionTime)),
-        functionExecutionTimePercent: 100 * (metric.functionExecutionTime / (metric.intervalExecutionTime + metric.functionExecutionTime))
+        intervalExecutionTime: metric ? parseFloat(metric.intervalExecutionTime).toFixed(2) : 0,
+        functionExecutionTime: metric ? parseFloat(metric.functionExecutionTime).toFixed(2) : 0,
+        intervalExecutionTimePercent: metric ? 100 * (metric.intervalExecutionTime / (metric.intervalExecutionTime + metric.functionExecutionTime)) : 0,
+        functionExecutionTimePercent: metric ? 100 * (metric.functionExecutionTime / (metric.intervalExecutionTime + metric.functionExecutionTime)) : 0
       }
     },
-    toggleCodeVisible(codeName, codeType) {
-      if (codeType === 'program') {
-        this.toggleProgramVisible(codeName)
-      } else {
-        this.toggleClassVisible(codeName)
-      }
-    },
-    toggleProgramVisible(name) {
-      if (this.programs[name].visible) {
-        this.programs[name].visible = false
-      } else {
-        this.getProgram(name)
-      }
-    },
-    getProgram(name) {
-      this.programs[name] = {
-        visible: true,
-        loading: true,
-        code: ''
-      }
-      queryProgram(name).then((result) => {
-        this.programs[name].loading = false
-        this.programs[name].code = result
-      })
-    },
-    toggleClassVisible(name) {
-      if (this.classes[name].visible) {
-        this.classes[name].visible = false
-      } else {
-        this.getClass(name)
-      }
-    },
-    getClass(name) {
-      this.classes[name] = {
-        visible: true,
-        loading: true,
-        code: ''
-      }
-      queryClass(name).then((result) => {
-        this.classes[name].loading = false
-        this.classes[name].code = result
-      })
-    }
+    ...mapActions([
+      'toggleCodeVisible',
+      'fetchValues',
+      'fetchMetrics',
+      'setValue',
+      'runFunction',
+    ])
   }
 }
 </script>

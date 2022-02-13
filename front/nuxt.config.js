@@ -33,16 +33,8 @@ export default {
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/tailwindcss
     '@nuxt/postcss8',
-    'nuxt-graphql-request',
     '@nuxtjs/google-fonts'
   ],
-  graphql: {
-    clients: {
-      default: {
-        endpoint: 'http://localhost:4000',
-      },
-    },
-  },
 
   googleFonts: {
     download: true,

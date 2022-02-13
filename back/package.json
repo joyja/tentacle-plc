@@ -4,12 +4,13 @@
   "description": "A Modern SoftPLC",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ignore ./runtime/persistence.json src/index.js",
+    "dev": "nodemon --ignore ./runtime src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "James A. Joy",
   "license": "GPL-3.0",
   "dependencies": {
+    "chokidar": "^3.5.3",
     "cors": "^2.8.5",
     "date-fns": "^2.28.0",
     "denormalize": "^1.2.10",
