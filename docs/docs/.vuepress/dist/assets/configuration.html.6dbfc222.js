@@ -1,1 +1,0 @@
-const t={key:"v-4f4ccb8f",path:"/guide/configuration.html",title:"",lang:"en-US",frontmatter:{},excerpt:"",headers:[],git:{updatedTime:1646033173e3,contributors:[{name:"James Joy",email:"joyja@jarautomation.io",commits:1}]},filePathRelative:"guide/configuration.md"};export{t as data};
