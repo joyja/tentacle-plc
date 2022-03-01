@@ -3,6 +3,29 @@
     class="flex p-3 bg-slate-100 m-0 overflow-visible"
     style="min-height: calc(100vh - 60px)">
       <div class="flex flex-col" style="flex-basis: 300px">
+        <div v-if="changes.length > 0" class="drop-shadow-md rounded bg-orange-200 my-3">
+          <div class="flex items-center justify-between p-3 text-lg rounded-t text-white bg-orange-500">
+            <div>Changes</div>
+            <button 
+              type="button" 
+              class="ml-1 inline-flex items-center p-1 border border-transparent rounded-full shadow-sm text-white bg-orange-700 hover:bg-orange-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-600"
+              @click="restartPLC"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+          <div class="p-3">  
+            <div v-for="(change, index) in changes" :key="index" class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9" viewBox="0 0 20 20" fill="currentColor">
+                <path v-if="change.event === 'change'" d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                <path v-if="change.event === 'add'" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                <path v-if="change.event === 'unlink'" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+              </svg><div class="text-xs ml-3">{{change.path}}</div>
+            </div>
+          </div>
+        </div>
       <div class="drop-shadow-md rounded bg-slate-300 my-3">
         <div class="p-3 text-lg rounded-t text-white bg-slate-500">
           Tasks
@@ -82,7 +105,7 @@
             </div>
           </div>
         </div>
-        <div class="p-2">
+        <div v-else class="p-2">
           <p>There are no Modbus connections configured.</p>
         </div>
       </div>
@@ -246,7 +269,8 @@ export default {
         'programs',
         'classes',
         'variables',
-        'plc'
+        'plc',
+        'changes'
       ]),
     ...mapGetters([
       'codes',
@@ -261,6 +285,7 @@ export default {
     this.interval = setInterval(() => {
       this.fetchValues()
       this.fetchMetrics()
+      this.fetchChanges()
     }, 1000)
   },
   beforeUnmount() {
@@ -268,7 +293,7 @@ export default {
   },
   methods: {
     toggle(path) {
-      this.setValue(path, !(this.values.find((value) => value.path === path).value === 'true'))
+      this.setValue({ 'variablePath':path, 'value': (!(this.values.find((value) => value.path === path).value === 'true')).toString() })
     },
     runFunction(path, args) {
       this.runFunction(path, args)
@@ -286,8 +311,10 @@ export default {
       'toggleCodeVisible',
       'fetchValues',
       'fetchMetrics',
+      'fetchChanges',
       'setValue',
       'runFunction',
+      'restartPLC'
     ])
   }
 }

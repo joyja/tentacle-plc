@@ -1,0 +1,1 @@
+const t={key:"v-fffb8e28",path:"/guide/",title:"Introduction",lang:"en-US",frontmatter:{},excerpt:"",headers:[],git:{updatedTime:1646033173e3,contributors:[{name:"James Joy",email:"joyja@jarautomation.io",commits:1}]},filePathRelative:"guide/README.md"};export{t as data};

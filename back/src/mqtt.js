@@ -16,7 +16,8 @@ const getDatatype = function (value) {
       return 'FLOAT'
     }
   } else {
-    throw Error(`datatype of ${key} could not be determined.`)
+    console.error(`datatype of ${value} could not be determined.`)
+    return 'STRING'
   }
 }
 

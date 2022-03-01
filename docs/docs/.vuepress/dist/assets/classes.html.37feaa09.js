@@ -1,0 +1,1 @@
+const e={key:"v-5beb675f",path:"/guide/classes.html",title:"",lang:"en-US",frontmatter:{},excerpt:"",headers:[],git:{updatedTime:1646033173e3,contributors:[{name:"James Joy",email:"joyja@jarautomation.io",commits:1}]},filePathRelative:"guide/classes.md"};export{e as data};

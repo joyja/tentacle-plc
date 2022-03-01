@@ -2,7 +2,8 @@
   "name": "tentacle-plc",
   "workspaces": [
     "front",
-    "back"
+    "back",
+    "docs"
   ],
   "version": "0.0.5"
 }
