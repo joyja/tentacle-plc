@@ -2,9 +2,13 @@ const path = require('path')
 const fs = require('fs')
 const Persistence = require('./persistence')
 const chokidar = require('chokidar')
+const Mqtt = require('./mqtt')
+const Modbus = require('./modbus')
 
 class PLC {
   constructor() {
+    this.modbus = {}
+    this.mqtt = {}
     this.intervals = []
     this.global = {}
     this.metrics = {}
@@ -32,7 +36,6 @@ class PLC {
     if (!fs.existsSync(this.runtimeProgramsDir)) {
       fs.mkdirSync(this.runtimeProgramsDir)
     }
-    this.getConfig()
   }
   getConfig() {
     this.config = JSON.parse(fs.readFileSync(this.runtimeConfigFile))
@@ -55,19 +58,65 @@ class PLC {
       classes: this.classes,
     })
     this.fileChanges = []
-    chokidar.watch(this.runtimeDir).on('all', (event, path) => {
-      this.fileChanges.push({ event, path })
+    chokidar.watch(this.runtimeDir).on('all', (event, filePath) => {
+      if (
+        filePath !== path.resolve(process.cwd(), 'runtime/persistence.json')
+      ) {
+        this.fileChanges.push({
+          event,
+          path: filePath.replace(process.cwd(), ''),
+        })
+      }
     })
     setTimeout(() => {
       //Clear out changes so initial files don't get put in the log.
       this.fileChanges.length = 0
     }, 500)
+    Object.keys(this.config.modbus).forEach((modbusKey) => {
+      if (this.modbus[modbusKey]) {
+        this.modbus[modbusKey].disconnect()
+      }
+      this.modbus[modbusKey] = new Modbus({
+        ...this.config.modbus[modbusKey].config,
+        global: this.global,
+      })
+      this.modbus[modbusKey].connect()
+    })
+    Object.keys(this.config.mqtt).forEach((mqttKey) => {
+      if (this.mqtt[mqttKey]) {
+        this.mqtt[mqttKey].disconnect()
+      }
+      this.mqtt[mqttKey] = new Mqtt({
+        ...this.config.mqtt[mqttKey].config,
+        global: this.global,
+      })
+      this.mqtt[mqttKey].connect()
+    })
+    Object.keys(this.variables).forEach((variableKey) => {
+      const variable = this.variables[variableKey]
+      if (variable.source) {
+        if (variable.source.type === 'modbus') {
+          setInterval(async () => {
+            await this.modbus[variable.source.name].write({
+              value: this.global[variableKey],
+              ...variable.source.params,
+            })
+            if (this.modbus[variable.source.name].connected) {
+              this.modbus[variable.source.name]
+                .read(variable.source.params)
+                .then((result) => (this.global[variableKey] = result))
+            }
+          }, variable.source.rate)
+        }
+      }
+    })
   }
   start() {
     if (!this.running) {
+      this.getConfig()
       Object.keys(this.variables).forEach((variableKey) => {
         const variable = this.variables[variableKey]
-        if (variable.datatype === 'number') {
+        if (variable.datatype === 'number' || variable.datatype === 'boolean') {
           this.global[variableKey] = variable.initialValue
         } else if (
           this.classes.map((item) => item.name).includes(variable.datatype)

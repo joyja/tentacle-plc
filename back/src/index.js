@@ -27,7 +27,7 @@ const schema = buildSchema(`
   }
   type atomicVariable {
     path: String!
-    value: String!
+    value: String
     datatype: String!
   }
   type VariableSourceParams {
@@ -121,14 +121,8 @@ const schema = buildSchema(`
   }
 `)
 
-let mainInterval
-
-const mqtt = {}
-const modbus = {}
 const plc = new PLC()
 const context = {
-  mqtt,
-  modbus,
   plc,
 }
 
@@ -290,7 +284,7 @@ const rootValue = {
       .map((file) => file.replace(`${process.cwd()}/runtime/classes/`, ''))
   },
   changes: function (args, context, info) {
-    return context.changes
+    return context.plc.fileChanges
   },
   startPlc: function (args, context, info) {
     context.plc.start()
@@ -326,40 +320,6 @@ app.use(
 
 app.listen(4000, async () => {
   try {
-    const intervals = []
-    Object.keys(plc.config.modbus).forEach((modbusKey) => {
-      modbus[modbusKey] = new Modbus({
-        ...plc.config.modbus[modbusKey].config,
-        global: plc.global,
-      })
-      modbus[modbusKey].connect()
-    })
-    Object.keys(plc.config.mqtt).forEach((mqttKey) => {
-      mqtt[mqttKey] = new Mqtt({
-        ...plc.config.mqtt[mqttKey].config,
-        global: plc.global,
-      })
-      mqtt[mqttKey].connect()
-      // try {
-      // mqtt[mqttKey].startPublishing()
-      // } catch (error) {
-      //   console.error(error)
-      // }
-    })
-    Object.keys(plc.variables).forEach((variableKey) => {
-      const variable = plc.variables[variableKey]
-      if (variable.source) {
-        if (variable.source.type === 'modbus') {
-          setInterval(() => {
-            if (modbus[variable.source.name].connected) {
-              modbus[variable.source.name]
-                .read(variable.source.params)
-                .then((result) => (plc.global[variableKey] = result))
-            }
-          }, variable.source.rate)
-        }
-      }
-    })
     plc.start()
     console.log('server started on port 4000.')
   } catch (error) {

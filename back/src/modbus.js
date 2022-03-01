@@ -36,8 +36,25 @@ class Modbus {
     } else if (format === `INT16`) {
       view.setInt16(0, data[0], this.reverseBits)
       value = view.getInt16(0)
+    } else {
+      value = data
     }
     return value
+  }
+  formatOutput(value, format) {
+    const buffer = new ArrayBuffer(4)
+    const view = new DataView(buffer)
+    let data = []
+    if (format === `FLOAT`) {
+      view.setFloat32(0, value)
+      data.push(view.getUint16(this.reverseWords ? 2 : 0, this.reverseBits))
+      data.push(view.getUint16(this.reverseWords ? 0 : 2, this.reverseBits))
+    } else if (format === `INT32`) {
+      view.setInt32(0, value)
+      data.push(view.getUint16(this.reverseWords ? 0 : 2, !this.reverseBits))
+      data.push(view.getUint16(this.reverseWords ? 2 : 0, !this.reverseBits))
+    }
+    return data
   }
   async connect() {
     if (!this.connected) {
@@ -75,6 +92,25 @@ class Modbus {
       }
     }
   }
+  async disconnect() {
+    await new Promise((resolve) => {
+      this.retryCount = 0
+      this.retryInterval = clearInterval(this.retryInterval)
+      console.log(
+        `Disconnecting from modbus device, host: ${this.host}, port: ${this.port}.`
+      )
+      const logText = `Closed connection to modbus device, host: ${this.host}, port: ${this.port}.`
+      if (this.connected) {
+        this.client.close(() => {})
+        console.log(logText)
+        resolve()
+      } else {
+        console.log(logText)
+        resolve()
+      }
+    })
+    this.connected = false
+  }
   async read({ registerType, register, format }) {
     if (this.connected) {
       if (registerType === 'INPUT_REGISTER') {
@@ -96,9 +132,9 @@ class Modbus {
             error.name === 'TransactionTimedOutError' ||
             error.name === 'PortNotOpenError'
           ) {
-            console.log(`Connection Timed Out on device`)
-            await this.modbus.disconnect()
-            await this.modbus.connect()
+            console.log(`Connection Timed Out on device: ${error.name}`)
+            await this.disconnect()
+            await this.connect()
           } else {
             console.error(error)
           }
@@ -119,13 +155,74 @@ class Modbus {
           )
         }).catch(async (error) => {
           if (error.name === 'TransactionTimedOutError') {
-            await this.modbus.disconnect()
-            await this.modbus.connect()
+            await this.disconnect()
+            await this.connect()
           } else {
             console.error(error)
           }
         })
-      } else {
+      } else if (registerType === 'COIL') {
+        const quantity = 1
+        return new Promise((resolve, reject) => {
+          this.client.readCoils(register, quantity, (error, data) => {
+            if (error) {
+              reject(error)
+              return
+            }
+            resolve(this.formatValue(data.data[0], format))
+          })
+        }).catch(async (error) => {
+          if (error.name === 'TransactionTimedOutError') {
+            await this.disconnect()
+            await this.connect()
+          } else {
+            console.error(error)
+          }
+        })
+      }
+    }
+  }
+  async write({ value, registerType, register, format }) {
+    if (this.connected) {
+      if (registerType === 'HOLDING_REGISTER') {
+        return new Promise((resolve, reject) => {
+          this.client.writeRegisters(
+            register,
+            this.formatOutput(value, format),
+            (error) => {
+              if (error) {
+                reject(error)
+                return
+              }
+              resolve()
+            }
+          )
+        }).catch(async (error) => {
+          if (error.name === 'TransactionTimedOutError') {
+            await this.disconnect()
+            await this.connect()
+          } else {
+            throw error
+          }
+        })
+      } else if (registerType === 'COIL') {
+        return new Promise((resolve, reject) => {
+          this.client.writeCoil(register, value + '' === 'true'),
+            (error) => {
+              if (error) {
+                reject(error)
+                return
+              }
+              resolve()
+            }
+        }).catch(async (error) => {
+          if (error.name === 'TransactionTimedOutError') {
+            await this.disconnect()
+            await this.connect()
+          } else {
+            throw error
+          }
+        })
       }
     }
   }

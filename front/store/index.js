@@ -6,7 +6,8 @@ export const state = () => {
     programs: [],
     classes: [],
     variables: [],
-    plc: {}
+    plc: {},
+    changes: [],
   }
 }
 
@@ -59,6 +60,7 @@ export const getters = {
             contextParams.value = value.value
           }
         }
+        contextParams.path = value.path
       } else {
         const children = variable.children.map((child) => {
           const value = state.values.find((value) => value.path === `${variable.name}.${child.name}`).value
@@ -121,6 +123,15 @@ export const actions = {
     await dispatch('fetchVariables')
     await dispatch('fetchValues')
     await dispatch('fetchMetrics')
+    await dispatch('fetchChanges')
+  },
+  fetchChanges({ dispatch }) {
+    return dispatch('fetchFromPLC', { stateKey: 'changes', queryName: 'changes', query: `query Changes {
+      changes {
+        path
+        event
+      }
+    }`})
   },
   fetchPLC({ dispatch }) {
     return dispatch('fetchFromPLC', { stateKey: 'plc', queryName: 'plc', query: `query Plc {
@@ -297,7 +308,7 @@ export const actions = {
         class(name: "${selector}")
     }`})
   },
-  setValue({dispatch}, variablePath, value) {
+  setValue({dispatch}, { variablePath, value }) {
     return dispatch('fetchFromPLC',{ stateKey: 'setValue', queryName:'setValue', query: `mutation SetValue {
       setValue(
         variablePath: "${variablePath}"
@@ -331,12 +342,22 @@ export const actions = {
       }
     }`})
   },
-  restartPLC({ dispatch }) {
-    return dispatch('fetchFromPLC', { stateKey: 'plc', queryName: 'restartPlc', query: `mutation RestartPlc {
+  async restartPLC({ dispatch }) {
+    await dispatch('fetchFromPLC', { stateKey: 'plc', queryName: 'restartPlc', query: `mutation RestartPlc {
       restartPlc {
         running
       }
     }`})
+    setTimeout(async () => {
+      await dispatch('fetchPLC')
+      await dispatch('fetchConfig')
+      await dispatch('fetchPrograms')
+      await dispatch('fetchClasses')
+      await dispatch('fetchVariables')
+      await dispatch('fetchValues')
+      await dispatch('fetchMetrics')
+      await dispatch('fetchChanges')
+    },5000)
   },
   async fetchFromPLC({ state, commit, getters }, { 
     mutationName, 
