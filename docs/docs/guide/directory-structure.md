@@ -63,37 +63,16 @@ The `config.json` file stores the configuration for Tentacle PLC, including task
 
 ### The variables.json file
 
-The `variables.json` stores the configuration of all variables that will be store in the `global` object that is passed to all user programs and classes. TentaclePLC creates variables according to this file. It allows for the following features to be applied to each variable:
-
-#### Description
-`description` Pretty self explanatory, but this String value is used to give the variable a little extra context for humans.
-
-#### Initial Value
-`initialValue` This sets the initial value of the variable on creation or on restart if the variable is persistent.
-
-#### Persistence
-`persistent` A Boolean value, if the variable is persistent it will retain it's value through a runtime restart (including hardware reboot).
-
-#### External Source
-`source` Setting this syncs the value of the variable with an external source over a communications protocol (like Modbus). If the value of the address in the external source changes, the value of the variable will change. If the external source allows for writes and Tentacle PLC changes the value of the variable, Tentacle PLC will attempt to write the new value to the external source.
-
-The structure depends on which protocol you are using but an example for Modbus TCP looks like this:
-
-```json
-{
-  "type": "modbus",
-  "name": "ModbusDevice1",
-  "rate": 1000,
-  "params": {
-    "register": 1,
-    "registerType": "COIL",
-    "format": "BOOLEAN"
-  }
-}
-```
+The `variables.json` stores the configuration of all variables that will be store in the `global` object that is passed to all user programs and classes. TentaclePLC creates variables according to this file. See [Variables](/guide/variables) for configuration details.
 
 ### NPM files (package.json, package-lock.json, & node_modules)
 
 Tentacle PLC uses npm workspaces to allow you to install 3rd party node modules to use in your programs and classes. Therefore, the runtime directory needs all of the standard node files. A great way to start with this is to run `npm init` within your runtime directory, which will ask you some questions and create the appropriate files for you.
 
 After that you can use `npm install` to install your favorite npm packages.
+
+### classes
+The classes folder holds all class files. Classes are a way to template object-oriented code. See [this page](/guide/classes) for more information on classes.
+
+### programs
+The programs folder holds all program files. Programs are functions that can be assigned to tasks to run periodically. See [this page](/guide/programs) for more information on program.

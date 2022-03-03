@@ -11,6 +11,9 @@ module.exports = {
   themeConfig: {
     logo: 'https://res.cloudinary.com/jarautomation/image/upload/c_scale,h_53/v1620021619/logos/tentacle-light.png',
     logoDark: 'https://res.cloudinary.com/jarautomation/image/upload/c_scale,h_53/v1595057073/logos/tentacle.png',
+    docsRepo: 'https://gitlab.com/joyja/tentacle-plc',
+    docsBranch: 'main',
+    docsDir: 'docs/docs',
     sidebar: {
       '/guide/': [
         {
@@ -18,7 +21,10 @@ module.exports = {
           children: [
             '/guide/README.md',
             '/guide/getting-started.md',
-            '/guide/directory-structure.md'
+            '/guide/directory-structure.md',
+            '/guide/variables.md',
+            '/guide/tasks-and-programs.md',
+            '/guide/classes.md'
           ],
         },
       ],
