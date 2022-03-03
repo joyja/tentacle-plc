@@ -124,7 +124,10 @@ class PLC {
           const variableClass = this.classes.find(
             (item) => item.name === variable.datatype
           )
-          this.global[variableKey] = new variableClass(variable.config)
+          this.global[variableKey] = new variableClass({
+            global: this.global,
+            ...variable.config,
+          })
           this.global[variableKey].name = variableKey
         } else {
           console.log(`the datatype for ${variableKey} is invalid`)
