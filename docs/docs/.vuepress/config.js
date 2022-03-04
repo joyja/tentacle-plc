@@ -24,7 +24,9 @@ module.exports = {
             '/guide/directory-structure.md',
             '/guide/variables.md',
             '/guide/tasks-and-programs.md',
-            '/guide/classes.md'
+            '/guide/classes.md',
+            '/guide/graphql.md',
+            '/guide/mqtt.md'
           ],
         },
       ],
