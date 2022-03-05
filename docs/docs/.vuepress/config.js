@@ -26,7 +26,8 @@ module.exports = {
             '/guide/tasks-and-programs.md',
             '/guide/classes.md',
             '/guide/graphql.md',
-            '/guide/mqtt.md'
+            '/guide/mqtt.md',
+            '/guide/hardware.md'
           ],
         },
       ],
@@ -34,6 +35,7 @@ module.exports = {
   },
   plugins: [
     [
+      'vuepress-plugin-default-theme-mermaid',
       '@vuepress/register-components',
       {
         componentsDir: path.resolve(__dirname, './components'),
