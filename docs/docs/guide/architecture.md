@@ -17,6 +17,6 @@
     b & c --> a
     end
     end
-    a <--> g
+    a <-- Modbus TCP - - - <i>Future: OPC-UA, Ethernet/IP or REST</i> --> g
 `"/>
 
