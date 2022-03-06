@@ -4,6 +4,8 @@ Tentacle PLC has a GraphQL API which allows external applications (like REST cli
 
 <!-- START graphql-markdown -->
 
+# Schema Types
+
 <details>
   <summary><strong>Table of Contents</strong></summary>
 
