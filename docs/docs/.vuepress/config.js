@@ -5,7 +5,7 @@ module.exports = {
   lang: 'en-US',
   title: 'Tentacle PLC',
   description: 'A modern software programmable logic controller',
-  head: [['script', { async: true, src: 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js' }]],
+  head: [['script', { defer: true, src: 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js' }]],
   // bundler: '@vuepress/bundler-webpack',
 
   // theme and its config
