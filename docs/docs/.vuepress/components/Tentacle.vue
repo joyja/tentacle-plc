@@ -1,6 +1,6 @@
 <template>
   <div>
-    <svg viewBox="0 0 410 410" xmlns="http://www.w3.org/2000/svg" height="200">
+    <svg :style="{ opacity: reveal ? 1 : 0 }" viewBox="0 0 410 410" xmlns="http://www.w3.org/2000/svg" height="200">
       <path id="tentacle-end" d="M79.688 435.689c-68.893-.214 35.052-70.337 56.594-107.777 16.361-28.433 11.011-60.436-4.28-81.558-34.9-48.21-124.438-109.038-102.118-177.835 8.189-25.24 25.067-39.323 51.365-42.313 48.75-5.542 113.799 26.752 162.654 31.275 5.087.47 11.301-2.713 13.453-7.359 2.784-6.012-6.385-23.481-.843-19.869 28.251 21.687 25.543 44.788-.381 55.436-30.645 10.296-132.993-23.774-145.532 6.746-13.472 32.788 177.137 59.328 199.954 192.552 9.316 54.395-1.547 148.472-40.086 148.358z" fill="#93aca7" stroke="#374845" stroke-width="6.27" stroke-linecap="butt" stroke-linejoin="miter" stroke-opacity="1"/>
       <path id="tentacle-start" d="M-191.603 1332.851c-54.831 41.713-16.877-64.79 5.891-101.498 29.149-46.997 43.569-84.272 62.449-125.33 24.865-54.074 48.295-105.779 73.443-176.893 8.847-25.017 15.251-52.376 28.009-82.608 19.075-45.204 33.776-150.386 116.565-228.595 20.071-18.96 81.291-55.133 91.443-99.2 18.583-80.668 28.073-137.906 38.468-5.821 6.657 84.579-72.329 129.384-115.222 203.561-19.909 64.39-38.504 151.837-47.969 183.445-10.638 35.527-12.778 94.5-19.272 144.809-7.065 54.733-62.824 157.36-93.493 180.698z" fill="#93aca7" stroke="#374845" stroke-width="6.27" stroke-linecap="butt" stroke-linejoin="miter" stroke-opacity="1"/>
       <path class="sucker-end" id="sucker-base-end-9" d="M115.714 63.172c-10.419 2.336-20.755.375-23.086-4.38-2.331-4.755 4.225-10.504 14.644-12.84 10.419-2.337 20.755-.376 23.086 4.379 2.331 4.755-4.225 10.504-14.644 12.841z" fill="#a40" stroke-width=".438"/>
@@ -89,13 +89,18 @@ import { gsap } from "gsap/dist/gsap.js";
 import { MorphSVGPlugin } from "gsap/dist/MorphSVGPlugin.js";
 
 export default {
+  data() {
+    return {
+      reveal: false
+    }
+  },
   mounted() {
     gsap.registerPlugin(MorphSVGPlugin)
     const tl = gsap.timeline({
       defaults: {duration: 1}
     })
     const tentacleStart = document.getElementById("tentacle-start")
-
+    this.reveal = true
     tl.add('morphit')
     tl.to(tentacleStart, {onUpdate:updateSlider,morphSVG:"#tentacle-end"}, 'morphit')
 
