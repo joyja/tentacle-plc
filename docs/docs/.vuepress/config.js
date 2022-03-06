@@ -29,7 +29,7 @@ module.exports = {
             '/guide/classes.md',
             '/guide/graphql.md',
             '/guide/mqtt.md',
-            '/guide/hardware.md'
+            '/guide/architecture.md'
           ],
         },
       ],

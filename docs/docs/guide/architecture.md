@@ -1,4 +1,4 @@
-# Example Hardware Architecture
+# Example Architecture
 
 <Mermaid :value="`
   flowchart TD
@@ -19,3 +19,4 @@
     end
     a <--> g
 `"/>
+
