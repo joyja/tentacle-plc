@@ -11,8 +11,8 @@ module.exports = {
   // theme and its config
   theme: '@vuepress/theme-default',
   themeConfig: {
-    logo: 'https://res.cloudinary.com/jarautomation/image/upload/c_scale,h_53/v1620021619/logos/tentacle-light.png',
-    logoDark: 'https://res.cloudinary.com/jarautomation/image/upload/c_scale,h_53/v1595057073/logos/tentacle.png',
+    logo: 'https://res.cloudinary.com/jarautomation/image/upload/f_auto/c_scale,h_53/v1620021619/logos/tentacle-light.png',
+    logoDark: 'https://res.cloudinary.com/jarautomation/image/upload/f_auto/c_scale,h_53/v1595057073/logos/tentacle.png',
     docsRepo: 'https://gitlab.com/joyja/tentacle-plc',
     docsBranch: 'main',
     docsDir: 'docs/docs',
