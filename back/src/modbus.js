@@ -207,14 +207,30 @@ class Modbus {
         })
       } else if (registerType === 'COIL') {
         return new Promise((resolve, reject) => {
-          this.client.writeCoil(register, value + '' === 'true'),
-            (error) => {
-              if (error) {
-                reject(error)
-                return
+          if (Object.prototype.toString.call(value) == '[object Array]') {
+            this.client.writeCoils(
+              register,
+              value.map((item) => item + '' === 'true'),
+              (error) => {
+                if (error) {
+                  reject(error)
+                  return
+                }
+                resolve()
               }
-              resolve()
-            }
+            )
+          } else {
+            this.client.writeCoil(
+              (register, value + '' === 'true'),
+              (error) => {
+                if (error) {
+                  reject(error)
+                  return
+                }
+                resolve()
+              }
+            )
+          }
         }).catch(async (error) => {
           if (error.name === 'TransactionTimedOutError') {
             await this.disconnect()

@@ -92,24 +92,6 @@ class PLC {
       })
       this.mqtt[mqttKey].connect()
     })
-    Object.keys(this.variables).forEach((variableKey) => {
-      const variable = this.variables[variableKey]
-      if (variable.source) {
-        if (variable.source.type === 'modbus') {
-          setInterval(async () => {
-            await this.modbus[variable.source.name].write({
-              value: this.global[variableKey],
-              ...variable.source.params,
-            })
-            if (this.modbus[variable.source.name].connected) {
-              this.modbus[variable.source.name]
-                .read(variable.source.params)
-                .then((result) => (this.global[variableKey] = result))
-            }
-          }, variable.source.rate)
-        }
-      }
-    })
   }
   start() {
     if (!this.running) {
@@ -139,7 +121,14 @@ class PLC {
         let intervalStart
         this.intervals.push({
           interval: setInterval(
-            async ({ global, persistence, metrics, taskKey }) => {
+            async ({
+              global,
+              persistence,
+              metrics,
+              variables,
+              modbus,
+              taskKey,
+            }) => {
               const intervalStop = intervalStart
                 ? process.hrtime(intervalStart)
                 : 0
@@ -152,6 +141,22 @@ class PLC {
                   process.cwd(),
                   `runtime/programs/${this.config.tasks[taskKey].program}.js`
                 ))({ global })
+                for (const variableKey of Object.keys(this.variables)) {
+                  const variable = this.variables[variableKey]
+                  if (variable.source) {
+                    if (variable.source.type === 'modbus') {
+                      await modbus[variable.source.name].write({
+                        value: [this.global[variableKey]],
+                        ...variable.source.params,
+                      })
+                      if (this.modbus[variable.source.name].connected) {
+                        this.modbus[variable.source.name]
+                          .read(variable.source.params)
+                          .then((result) => (this.global[variableKey] = result))
+                      }
+                    }
+                  }
+                }
                 const functionStop = process.hrtime(functionStart)
                 metrics[taskKey].functionExecutionTime =
                   (functionStop[0] * 1e9 + functionStop[1]) / 1e6
@@ -169,6 +174,8 @@ class PLC {
               global: this.global,
               persistence: this.persistence,
               metrics: this.metrics,
+              variables: this.variables,
+              modbus: this.modbus,
               taskKey,
             }
           ),
