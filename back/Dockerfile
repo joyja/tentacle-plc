@@ -1,9 +1,10 @@
 FROM keymetrics/pm2:16-buster
 
 # Bundle APP files
-COPY src src/
-COPY package.json .
-COPY ecosystem.config.js .
+COPY src tentacle/src
+COPY package.json tentacle/
+COPY ecosystem.config.js tentacle/
+WORKDIR /tentacle
 
 # Install app dependencies
 ENV NPM_CONFIG_LOGLEVEL warn

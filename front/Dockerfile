@@ -2,7 +2,7 @@ FROM keymetrics/pm2:16-buster
 
 # Bundle APP files
 COPY . src/
-WORKDIR src
+WORKDIR /src
 
 # Install app dependencies
 ENV NPM_CONFIG_LOGLEVEL warn
