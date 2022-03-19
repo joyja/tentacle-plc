@@ -20,7 +20,7 @@ class PLC {
     this.runtimeConfigFile = path.resolve(this.runtimeDir, 'config.json')
     if (!fs.existsSync(this.runtimeConfigFile)) {
       fs.writeFileSync(
-        runtimeConfigFile,
+        this.runtimeConfigFile,
         JSON.stringify({ tasks: {}, mqtt: {}, modbus: {} }, null, 2)
       )
     }
