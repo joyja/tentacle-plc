@@ -1,7 +1,7 @@
 FROM keymetrics/pm2:16-buster
 
 # Bundle APP files
-COPY front src/
+COPY . src/
 WORKDIR src
 
 # Install app dependencies
