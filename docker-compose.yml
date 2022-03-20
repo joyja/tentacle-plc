@@ -6,7 +6,7 @@ services:
     ports:
       - 4000:4000
     volumes:
-      - tentacle-plc-runtime:/runtime:rw
+      - tentacle-plc-runtime:/tentacle/runtime:rw
     networks:
       - upstream
   tentacle-plc-front:
