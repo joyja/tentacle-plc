@@ -3,5 +3,5 @@
   # This is where we will look for package.json/.nvmrc/etc.
   # If not set, defaults to the root directory.
   base = 'docs/'
-  publish = '.vuepress/dist'
+  publish = 'docs/.vuepress/dist'
   command = 'npm run docs:build'
