@@ -85,8 +85,8 @@
 </template>
 
 <script type="module">
-import { gsap } from "gsap/dist/gsap.js"
-import { MorphSVGPlugin } from "gsap/dist/MorphSVGPlugin.js"
+import { gsap } from "gsap/dist/gsap"
+import { MorphSVGPlugin } from "gsap/dist/MorphSVGPlugin"
 
 export default {
   data() {
