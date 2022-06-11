@@ -762,7 +762,7 @@ The `String` scalar type represents textual data, represented as UTF-8 character
 
 - Query - PLC Running Status
   - Body:
-  
+
     ```
     query {
       plc {
@@ -770,7 +770,7 @@ The `String` scalar type represents textual data, represented as UTF-8 character
         }
       }
     ```
-  - Repsonse:
+  - Response:
 
     ```
     {
@@ -795,7 +795,7 @@ The `String` scalar type represents textual data, represented as UTF-8 character
     }
     ```
 
-  - Repsonse:
+  - Response:
     ```
     {
       "data": {
