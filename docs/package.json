@@ -11,8 +11,10 @@
   "license": "ISC",
   "devDependencies": {
     "@vuepress/bundler-webpack": "^2.0.0-beta.36",
-    "@vuepress/plugin-register-components": "^2.0.0-beta.35",
-    "gsap": "npm:@gsap/shockingly@^3.9.1",
+    "@vuepress/plugin-register-components": "^2.0.0-beta.35"
+  },
+  "dependencies": {
+    "gsap": "^3.10.4",
     "vuepress": "^2.0.0-beta.35"
   }
 }
