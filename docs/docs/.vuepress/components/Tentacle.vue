@@ -87,6 +87,7 @@
 <script type="module">
 import { gsap } from "gsap/dist/gsap"
 import { MorphSVGPlugin } from "gsap/dist/MorphSVGPlugin"
+gsap.registerPlugin(MorphSVGPlugin)
 
 export default {
   data() {
@@ -95,7 +96,6 @@ export default {
     }
   },
   mounted() {
-    gsap.registerPlugin(MorphSVGPlugin)
     const tl = gsap.timeline({
       defaults: {duration: 1}
     })
