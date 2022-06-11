@@ -1,4 +1,6 @@
 const { path } = require('@vuepress/utils')
+const { defaultTheme } = require('@vuepress/theme-default')
+const { registerComponentsPlugin } = require('@vuepress/plugin-register-components')
 
 module.exports = {
   // site config
@@ -9,8 +11,7 @@ module.exports = {
   // bundler: 'vuepress-webpack',
 
   // theme and its config
-  theme: '@vuepress/theme-default',
-  themeConfig: {
+  theme: defaultTheme({
     logo: 'https://res.cloudinary.com/jarautomation/image/upload/f_auto/c_scale,h_53/v1620021619/logos/tentacle-light.png',
     logoDark: 'https://res.cloudinary.com/jarautomation/image/upload/f_auto/c_scale,h_53/v1595057073/logos/tentacle.png',
     docsRepo: 'https://gitlab.com/joyja/tentacle-plc',
@@ -35,16 +36,15 @@ module.exports = {
         },
       ],
     }
-  },
+  }),
   plugins: [
     [
-      '@vuepress/register-components',
-      {
+      registerComponentsPlugin({
         componentsDir: path.resolve(__dirname, './components'),
-      },
+      }),
     ],
   ],
   alias: {
     '@theme/Home.vue': path.resolve(__dirname, './components/TentacleHome.vue'),
-  },
+  }
 }
