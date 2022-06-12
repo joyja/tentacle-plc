@@ -757,3 +757,55 @@ The `String` scalar type represents textual data, represented as UTF-8 character
 
 
 <!-- END graphql-markdown -->
+
+## Examples
+
+### Query - PLC Running Status
+- Body:
+
+  ```
+  query {
+    plc {
+        running
+      }
+    }
+  ```
+- Response:
+
+  ```
+  {
+    "data": {
+        "plc": {
+          "running": true
+        }
+    }
+  }
+  ```
+- Postman Snippet:
+
+  ![image](https://user-images.githubusercontent.com/48938478/173172679-44f543aa-98b6-4c17-b164-bdc50395d510.png)
+
+### Mutation - Restart PLC
+- Body:
+  ```
+  mutation {
+    restartPlc {
+      running
+    }
+  }
+  ```
+
+- Response:
+  ```
+  {
+    "data": {
+        "restartPlc": {
+          "running": true
+      }
+    }
+  }
+  ```
+
+- Postman Snippet:
+
+  ![image](https://user-images.githubusercontent.com/48938478/173172788-6b619ec9-cd23-4bab-a586-5b417edf8201.png)
