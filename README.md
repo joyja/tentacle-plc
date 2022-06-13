@@ -9,4 +9,4 @@ A modern software programmable logic controller
 
 ## Contributing
 
-[Contributing Info](contribute.md)
+[Contributing Info](CONTRIBUTING.md)
