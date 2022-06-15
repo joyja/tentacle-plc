@@ -4,7 +4,7 @@ A modern software programmable logic controller
 
 ## Docs
 
-[Tentacle PLC](https://www.tentacleplc.com)
+<https://www.tentacleplc.com>
 
 
 ## Contributing
