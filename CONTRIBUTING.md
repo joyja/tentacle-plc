@@ -7,6 +7,7 @@ First off, thanks for taking the time to contribute!
 - [What is Tentacle PLC?](#what-is-tentacle-plc)
 - [Contributing on GitHub](#contributing-on-github)
     - [Additional GitHub resources](#additional-github-resources)
+- [Setting up local environment for docs](#setting-up-local-environment-for-docs)
 - [References](#references)
 
 ## What is Tentacle PLC?
@@ -29,7 +30,7 @@ First off, thanks for taking the time to contribute!
 - Clone [tentacle-plc](https://github.com/joyja/tentacle-plc) repo
 - Install [Node.js](https://nodejs.dev/download/package-manager/) v16.13.2
 - Change directory to docs folder
-- Add the token for Greensock
+- Add the token for Greensock?
 - Run the following command `npm install`
 - Then run the following command `npm run docs:dev` to run the local server
 - Press CTRL + C to stop the local server
