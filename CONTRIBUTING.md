@@ -2,13 +2,16 @@
 
 First off, thanks for taking the time to contribute!
 
-## Table of Contents
+<details>
+ <summary><strong>Table of Contents</strong></summary>
 
 - [What is Tentacle PLC?](#what-is-tentacle-plc)
 - [Contributing on GitHub](#contributing-on-github)
     - [Additional GitHub resources](#additional-github-resources)
 - [Setting up local environment for docs](#setting-up-local-environment-for-docs)
 - [References](#references)
+
+</details>
 
 ## What is Tentacle PLC?
 
@@ -17,13 +20,13 @@ First off, thanks for taking the time to contribute!
 ## Contributing on GitHub
 
 - [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github)
+- [GitHub Standard Fork & Pull Request Workflow](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
 
-### Additional GitHub resources
+### General Git/GitHub resources
 
 - [Set up Git](https://docs.github.com/en/get-started/quickstart/set-up-git)
 - [GitHub flow](https://docs.github.com/en/get-started/quickstart/github-flow)
 - [Collaborating with pull requests](https://docs.github.com/en/github/collaborating-with-pull-requests)
-
 
 ## Setting up local environment for docs
 
@@ -31,9 +34,12 @@ First off, thanks for taking the time to contribute!
 - Install [Node.js](https://nodejs.dev/download/package-manager/) v16.13.2
 - Change directory to docs folder
 - Add the token for Greensock?
-- Run the following command `npm install`
-- Then run the following command `npm run docs:dev` to run the local server
+- Run the `npm install`
+- Then run `npm run docs:dev` to start and run the local server
 - Press CTRL + C to stop the local server
+
+## FAQs
+
 
 ## References
 
