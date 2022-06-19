@@ -6,7 +6,6 @@ A modern software programmable logic controller
 
 <https://www.tentacleplc.com>
 
-
 ## Contributing
 
 [Contributing Info](CONTRIBUTING.md)
