@@ -8,6 +8,7 @@ First off, thanks for taking the time to contribute!
 - [What is Tentacle PLC?](#what-is-tentacle-plc)
 - [Contributing on GitHub](#contributing-on-github)
     - [Additional GitHub resources](#additional-github-resources)
+- [Setting up local environment for Tentacle PLC](#setting-up-local-environment-for-tentacle-plc)
 - [Setting up local environment for docs](#setting-up-local-environment-for-docs)
 - [References](#references)
 
@@ -28,9 +29,14 @@ First off, thanks for taking the time to contribute!
 - [GitHub flow](https://docs.github.com/en/get-started/quickstart/github-flow)
 - [Collaborating with pull requests](https://docs.github.com/en/github/collaborating-with-pull-requests)
 
+## Setting up local environment for Tentacle PLC
+
+- TODO
+- Similar to [Tentacle](https://github.com/joyja/tentacle#starting-tentacle-on-boot)
+
 ## Setting up local environment for docs
 
-- Clone [tentacle-plc](https://github.com/joyja/tentacle-plc) repo
+- Clone [tentacle-plc](https://github.com/joyja/tentacle-plc)
 - Install [Node.js](https://nodejs.dev/download/package-manager/) v16.13.2
 - Change directory to docs folder
 - Add the token for Greensock?
@@ -40,6 +46,8 @@ First off, thanks for taking the time to contribute!
 
 ## FAQs
 
+- Why create Tentacle PLC?
+    - See @joyja response [here](https://github.com/joyja/tentacle-plc/issues/1#issuecomment-1073314779)
 
 ## References
 
