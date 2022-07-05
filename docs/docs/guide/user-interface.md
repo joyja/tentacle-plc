@@ -21,12 +21,10 @@ For the client connection string `{TENTACLE_CLIENT_PROTOCOL}://{TENTACLE_CLIENT_
 * TENTACLE_CLIENT_PORT: *Default - 4000* Set this to the port the user interface should use to connect to Tentacle PLC from the browser.
 * TENTACLE_CLIENT_URL: *Default - /* Set this to the url path the user interface should use to connect to Tentacle PLC from the browser.
 
-We prefer to use [Code Server](https://github.com/coder/code-server) to edit the PLC code from the browser. The user interface edit buttons redirect you to your code-server environment. These environment variables let you configure the redirect path for the user interface or disable the edit buttons all together.
+Tentacle is designed to use [Code Server](https://github.com/coder/code-server), VS Code in the browser, to edit the PLC code from the browser. The user interface edit buttons redirect you to your code-server environment. These environment variables let you configure the redirect path for the user interface or disable the edit buttons all together.
 
 For the code-server connection string `{TENTACLE_CODESERVER_PROTOCOL}://{TENTACLE_CODESERVER_HOST}:{TENTACLE_CODESERVER_PORT}{TENTACLE_CODESERVER_URL}`:
 * TENTACLE_CODESERVER_HOST: *Default - the value of window.location.hostname* Set this to the hostname of your Code Server.
 * TENTACLE_CODESERVER_PROTOCOL: *Default - http* Set this `http` or `https` depending on the protocol you use to access your Code Server.
 * TENTACLE_CODESERVER_PORT: *Default - 4000* Set this to the port the user interface should use to connect to Code Server.
 * TENTACLE_CODESERVER_URL: *Default - /* Set this to the url path the user interface should use to connect to Code Server. 
-
-
