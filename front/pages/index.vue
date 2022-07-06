@@ -263,10 +263,10 @@ export default {
   },
   computed: {
     codeserverEndpoint() {
-      codeserverHost = process.env.TENTACLE_CODESERVER_HOST || this.hostname
-      codeserverProtocol = process.env.TENTACLE_CODESERVER_PROTOCOL || 'http'
-      codeserverPort = process.env.TENTACLE_CODESERVER_PORT || 8080
-      codeserverUrl = process.env.TENTACLE_CODESERVER_URL || '/'
+      const codeserverHost = process.env.TENTACLE_CODESERVER_HOST || this.hostname
+      const codeserverProtocol = process.env.TENTACLE_CODESERVER_PROTOCOL || 'http'
+      const codeserverPort = process.env.TENTACLE_CODESERVER_PORT || 8080
+      const codeserverUrl = process.env.TENTACLE_CODESERVER_URL || '/'
       return `${codeserverProtocol}://${codeserverHost}:${codeserverPort}${codeserverUrl}`
     },
     ...mapState([
