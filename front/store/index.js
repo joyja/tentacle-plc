@@ -13,11 +13,11 @@ export const state = () => {
 
 export const getters = {
   serverHost: () => process.env.TENTACLE_SERVER_HOST || 'localhost',
-  serverProtocol: () => process.env.TENTACLE_SERVER_SECURE || 'http',
+  serverProtocol: () => process.env.TENTACLE_SERVER_PROTOCOL || 'http',
   serverPort: () => process.env.TENTACLE_SERVER_PORT || 4000,
   serverUrl: () => process.env.TENTACLE_SERVER_URL || '/',
   clientHost: () => process.env.TENTACLE_CLIENT_HOST || process.client ? window.location.hostname : '',
-  clientProtocol: () => process.env.TENTACLE_CLIENT_SECURE || 'http',
+  clientProtocol: () => process.env.TENTACLE_CLIENT_PROTOCOL || 'http',
   clientPort: () => process.env.TENTACLE_CLIENT_PORT || 4000,
   clientUrl: () => process.env.TENTACLE_CLIENT_URL || '/',
   endpoint (state, getters) {
