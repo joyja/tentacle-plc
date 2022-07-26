@@ -102,7 +102,11 @@ class PLC {
       this.getConfig()
       Object.keys(this.variables).forEach((variableKey) => {
         const variable = this.variables[variableKey]
-        if (variable.datatype === 'number' || variable.datatype === 'boolean') {
+        if (
+          variable.datatype === 'number' ||
+          variable.datatype === 'boolean' ||
+          variable.dataype === 'string'
+        ) {
           this.global[variableKey] = variable.initialValue
         } else if (
           this.classes.map((item) => item.name).includes(variable.datatype)
