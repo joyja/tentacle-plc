@@ -52,7 +52,7 @@ export const getters = {
       if (atomicTypes.includes(variable.datatype)) {
         const value = state.values.find((value) => value.path === variable.name)
         if (value) {
-          if (value.datatype === 'string' && 'function' in value.value) {
+          if (value.datatype === 'string' && value.value.includes('function')) {
             contextParams.datatype = 'function'
             contextParams.argumentCount = parseInt(value.value.replace('function',''))
           } else {
