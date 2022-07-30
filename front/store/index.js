@@ -134,7 +134,7 @@ export const actions = {
     }`})
   },
   fetchPLC({ dispatch }) {
-    return dispatch('fetchFromPLC', { stateKey: 'plc', queryName: 'plc', query: `query Plc {
+    return dispatch('fetchFromPLC', { fallback: {}, stateKey: 'plc', queryName: 'plc', query: `query Plc {
       plc {
         running
       }
@@ -365,7 +365,8 @@ export const actions = {
     stateKey, 
     queryName, 
     query, 
-    operation 
+    operation,
+    fallback = []
   }){
     const result = await fetch(getters.endpoint, {
       method: 'POST',
@@ -379,7 +380,7 @@ export const actions = {
     })
       .then((r) => r.json())
       .then((data) => {
-        return data.data[queryName]
+        return data.data ? data.data[queryName]: fallback
       })
     let value
     if (operation) {
