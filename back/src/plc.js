@@ -105,7 +105,7 @@ class PLC {
         if (
           variable.datatype === 'number' ||
           variable.datatype === 'boolean' ||
-          variable.dataype === 'string'
+          variable.datatype === 'string'
         ) {
           this.global[variableKey] = variable.initialValue
         } else if (
