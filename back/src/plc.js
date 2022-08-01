@@ -72,33 +72,41 @@ class PLC {
       //Clear out changes so initial files don't get put in the log.
       this.fileChanges.length = 0
     }, 500)
-    Object.keys(this.config.modbus).forEach((modbusKey) => {
-      if (this.modbus[modbusKey]) {
-        this.modbus[modbusKey].disconnect()
-      }
-      this.modbus[modbusKey] = new Modbus({
-        ...this.config.modbus[modbusKey].config,
-        global: this.global,
+    if (this.config.modbus) {
+      Object.keys(this.config.modbus).forEach((modbusKey) => {
+        if (this.modbus[modbusKey]) {
+          this.modbus[modbusKey].disconnect()
+        }
+        this.modbus[modbusKey] = new Modbus({
+          ...this.config.modbus[modbusKey].config,
+          global: this.global,
+        })
+        this.modbus[modbusKey].connect()
       })
-      this.modbus[modbusKey].connect()
-    })
-    Object.keys(this.config.mqtt).forEach((mqttKey) => {
-      if (this.mqtt[mqttKey]) {
-        this.mqtt[mqttKey].disconnect()
-      }
-      this.mqtt[mqttKey] = new Mqtt({
-        ...this.config.mqtt[mqttKey].config,
-        global: this.global,
+    }
+    if (this.config.mqtt) {
+      Object.keys(this.config.mqtt).forEach((mqttKey) => {
+        if (this.mqtt[mqttKey]) {
+          this.mqtt[mqttKey].disconnect()
+        }
+        this.mqtt[mqttKey] = new Mqtt({
+          ...this.config.mqtt[mqttKey].config,
+          global: this.global,
+        })
+        this.mqtt[mqttKey].connect()
       })
-      this.mqtt[mqttKey].connect()
-    })
+    }
   }
   start() {
     if (!this.running) {
       this.getConfig()
       Object.keys(this.variables).forEach((variableKey) => {
         const variable = this.variables[variableKey]
-        if (variable.datatype === 'number' || variable.datatype === 'boolean') {
+        if (
+          variable.datatype === 'number' ||
+          variable.datatype === 'boolean' ||
+          variable.dataype === 'string'
+        ) {
           this.global[variableKey] = variable.initialValue
         } else if (
           this.classes.map((item) => item.name).includes(variable.datatype)
