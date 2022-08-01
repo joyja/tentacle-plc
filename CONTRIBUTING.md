@@ -2,8 +2,7 @@
 
 First off, thanks for taking the time to contribute!
 
-<details>
- <summary><strong>Table of Contents</strong></summary>
+## Tables of Contents
 
 - [What is Tentacle PLC?](#what-is-tentacle-plc)
 - [Contributing on GitHub](#contributing-on-github)
@@ -11,8 +10,6 @@ First off, thanks for taking the time to contribute!
 - [Setting up local environment for Tentacle PLC](#setting-up-local-environment-for-tentacle-plc)
 - [Setting up local environment for docs](#setting-up-local-environment-for-docs)
 - [References](#references)
-
-</details>
 
 ## What is Tentacle PLC?
 
