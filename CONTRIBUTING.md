@@ -6,7 +6,7 @@ First off, thanks for taking the time to contribute!
 
 - [What is Tentacle PLC?](#what-is-tentacle-plc)
 - [Contributing on GitHub](#contributing-on-github)
-    - [Additional GitHub resources](#additional-github-resources)
+    - [Additional resources](#additional-resources)
 - [Setting up local environment for Tentacle PLC](#setting-up-local-environment-for-tentacle-plc)
 - [Setting up local environment for docs](#setting-up-local-environment-for-docs)
 - [References](#references)
@@ -20,18 +20,19 @@ First off, thanks for taking the time to contribute!
 - [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github)
 - [GitHub Standard Fork & Pull Request Workflow](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
 
-### General Git/GitHub resources
+### Additional resources
 
-- [Set up Git](https://docs.github.com/en/get-started/quickstart/set-up-git)
-- [GitHub flow](https://docs.github.com/en/get-started/quickstart/github-flow)
-- [Collaborating with pull requests](https://docs.github.com/en/github/collaborating-with-pull-requests)
+- [Set up Git - From GitHub](https://docs.github.com/en/get-started/quickstart/set-up-git)
+- [GitHub flow - From GitHub](https://docs.github.com/en/get-started/quickstart/github-flow)
+- [Collaborating with pull requests - From GitHub](https://docs.github.com/en/github/collaborating-with-pull-requests)
+- [Learn Version control with Git - From Git Tower](https://www.git-tower.com/learn/git/ebook)
 
 ## Setting up local environment for Tentacle PLC
 
 - TODO
 - Similar to [Tentacle](https://github.com/joyja/tentacle#starting-tentacle-on-boot)
 
-## Setting up local environment for docs
+## Setting up local environment for documentation
 
 - Clone [tentacle-plc](https://github.com/joyja/tentacle-plc)
 - Install [Node.js](https://nodejs.dev/download/package-manager/) v16.13.2
