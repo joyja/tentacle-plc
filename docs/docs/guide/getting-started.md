@@ -33,7 +33,7 @@ The best way to use Tentacle PLC in production is with docker and docker-compose
 
 3. Download [docker-compose.yml](https://gitlab.com/joyja/tentacle-plc/-/raw/main/docker-compose.yml?inline=false) from the Tentacle PLC repository.
 
-4. Run `docker-compose up -d` from the directory where you downloaded the `docker-compose.yml` file.
+4. Run `docker compose up -d` from the directory where you downloaded the `docker-compose.yml` file.
 
 This will create the three docker containers from the most recent versions we've tested on Docker Hub:
 
