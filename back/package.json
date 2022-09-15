@@ -22,6 +22,7 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "modbus-serial": "^8.0.5-no-serial-port",
+    "node-fetch": "^2.6.6",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "tentacle-sparkplug-client": "^0.0.6"
