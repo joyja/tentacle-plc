@@ -83,9 +83,90 @@ class Opcua {
           `Connection failed to opcua device ${this.device.name}, host: ${this.host}, port: ${this.port}, with error: ${this.error}.`
         )
       }
-      this.pubsub.publish('deviceUpdate', {
-        deviceUpdate: this.device,
+    }
+  }
+  async disconnect() {
+    this.retryCount = 0
+    this.retryInterval = clearInterval(this.retryInterval)
+    console.log(`Disconnecting from modbus device ${this.device.name}`)
+    const logText = `Closed connection to modbus device ${this.device.name}.`
+    if (this.connected) {
+      await this.session.close()
+      await this.client.disconnect()
+      console.log(logText)
+    } else {
+      console.log(logText)
+    }
+    this.connected = false
+  }
+  async browse(nodeId, flat = false) {
+    if (this.connected) {
+      return new Promise((resolve, reject) => {
+        const crawler = new NodeCrawler(this.session)
+        let firstScan = true
+        let flatResult = []
+        if (flat) {
+          crawler.on('browsed', (element) => {
+            if (element.dataValue) {
+              flatResult.push({
+                nodeId: element.nodeId.toString(),
+                browseName: `${element.nodeId.toString()},${
+                  element.browseName.name
+                }`,
+              })
+            }
+          })
+        }
+        crawler.read(nodeId || 'ObjectsFolder', (err, obj) => {
+          if (!err) {
+            if (flat) {
+              resolve(flatResult)
+            } else {
+              resolve(obj)
+            }
+          } else {
+            reject(err)
+          }
+        })
       })
+    } else {
+      return flat ? [] : null
+    }
+  }
+  async read({ nodeId }) {
+    if (this.connected) {
+      try {
+        const {
+          value: { value },
+        } = await this.session
+          .readVariableValue(nodeId)
+          .catch((error) => logger.error(error))
+        return value
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+  async write({ inputValue, nodeId, datatype }) {
+    if (this.connected) {
+      let opcuaDataType
+      let value
+      if (datatype === 'BOOLEAN') {
+        opcuaDataType = DataType.Boolean
+        value = inputValue + '' === 'true'
+      } else if (datatype === 'FLOAT') {
+        opcuaDataType = DataType.Float
+        value = parseFloat(value)
+      } else if (datatype === 'INT32') {
+        opcuaDataType = DataType.Int32
+        value = parseInt(value)
+      } else {
+        opcuaDataType = DataType.String
+        value = inputValue
+      }
+      await this.session
+        .writeSingleNode(nodeId, { value, opcuaDataType })
+        .catch((error) => logger.error(error))
     }
   }
 }

@@ -4,10 +4,12 @@ const Persistence = require('./persistence')
 const chokidar = require('chokidar')
 const Mqtt = require('./mqtt')
 const Modbus = require('./modbus')
+const Opcua = require('./opcua')
 
 class PLC {
   constructor() {
     this.modbus = {}
+    this.opcua = {}
     this.mqtt = {}
     this.intervals = []
     this.global = {}
@@ -21,7 +23,7 @@ class PLC {
     if (!fs.existsSync(this.runtimeConfigFile)) {
       fs.writeFileSync(
         this.runtimeConfigFile,
-        JSON.stringify({ tasks: {}, mqtt: {}, modbus: {} }, null, 2)
+        JSON.stringify({ tasks: {}, mqtt: {}, modbus: {}, opcua: {} }, null, 2)
       )
     }
     this.runtimeVariableFile = path.resolve(this.runtimeDir, 'variables.json')
@@ -84,6 +86,18 @@ class PLC {
         this.modbus[modbusKey].connect()
       })
     }
+    if (this.config.opcua) {
+      Object.keys(this.config.opcua).forEach((opcuaKey) => {
+        if (this.opcua[opcuaKey]) {
+          this.opcua[opcuaKey].disconnect()
+        }
+        this.opcua[opcuaKey] = new Opcua({
+          ...this.config.opcua[opcuaKey].config,
+          global: this.global,
+        })
+        this.opcua[opcuaKey].connect()
+      })
+    }
     if (this.config.mqtt) {
       Object.keys(this.config.mqtt).forEach((mqttKey) => {
         if (this.mqtt[mqttKey]) {
@@ -135,6 +149,7 @@ class PLC {
               metrics,
               variables,
               modbus,
+              opcua,
               taskKey,
             }) => {
               const intervalStop = intervalStart
@@ -163,6 +178,17 @@ class PLC {
                           .then((result) => (this.global[variableKey] = result))
                       }
                     }
+                    if (variable.source.type === 'opcua') {
+                      await opcua[variable.source.name].write({
+                        value: [this.global[variableKey]],
+                        ...variable.source.params,
+                      })
+                      if (this.opcua[variable.source.name].connected) {
+                        this.opcua[variable.source.name]
+                          .read(variable.source.name)
+                          .then((result) => (this.global[variableKey] = result))
+                      }
+                    }
                   }
                 }
                 const functionStop = process.hrtime(functionStart)
@@ -184,6 +210,7 @@ class PLC {
               metrics: this.metrics,
               variables: this.variables,
               modbus: this.modbus,
+              opcua: this.opcua,
               taskKey,
             }
           ),
