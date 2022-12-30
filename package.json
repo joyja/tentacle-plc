@@ -5,5 +5,8 @@
     "back",
     "docs"
   ],
-  "version": "0.0.10"
+  "version": "0.0.10",
+  "dependencies": {
+    "node-opcua": "^2.87.0"
+  }
 }
