@@ -1,6 +1,6 @@
 {
-  "name": "vuepress-test",
-  "version": "1.0.0",
+  "name": "tentacle-plc-docs",
+  "version": "0.0.14",
   "description": "",
   "main": "index.js",
   "scripts": {

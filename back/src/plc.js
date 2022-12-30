@@ -45,6 +45,10 @@ class PLC {
     this.classes = fs
       .readdirSync(path.resolve(this.runtimeClassesDir))
       .map((filename) => {
+        delete require.cache[require.resolve(path.resolve(
+          this.runtimeClassesDir,
+          `${filename}`
+        ))]
         const classes = require(path.resolve(
           this.runtimeClassesDir,
           `${filename}`
@@ -132,6 +136,15 @@ class PLC {
             global: this.global,
             ...variable.config,
           })
+          // check for class tasks and run intervals for them
+          if (variableClass.tasks) {
+            this.global[variableKey].intervals = []
+            Object.keys(variableClass.tasks).forEach((taskKey) => {
+              this.global[variableKey].intervals.push(setInterval(() => {
+                this.global[variableKey][variableClass.tasks[taskKey]['function']]()
+              }, variableClass.tasks[taskKey]['scanRate']))
+            })
+          }
           this.global[variableKey].name = variableKey
         } else {
           console.log(`the datatype for ${variableKey} is invalid`)
@@ -160,6 +173,12 @@ class PLC {
                 : 0
               const functionStart = process.hrtime()
               try {
+                delete require.cache[require.resolve(path.resolve(
+                  path.resolve(
+                    process.cwd(),
+                    `runtime/programs/${this.config.tasks[taskKey].program}.js`
+                  )
+                ))]
                 await require(path.resolve(
                   process.cwd(),
                   `runtime/programs/${this.config.tasks[taskKey].program}.js`
@@ -229,6 +248,14 @@ class PLC {
         clearInterval(interval.interval)
       })
       this.intervals = []
+      Object.keys(this.global).forEach((variableKey) => {
+        if (this.global[variableKey].intervals) {
+          this.global[variableKey].intervals.forEach((interval) => {
+            clearInterval(interval)
+          })
+          this.global[variableKey].intervals = []
+        }
+      })
       this.running = false
     } else {
       throw Error('The PLC is already stopped.')

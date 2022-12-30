@@ -149,7 +149,7 @@ class Mqtt {
               (typeof metric.value === 'boolean' && metric.value)
           )
         } else if (typeof variable == 'function') {
-          // * Need to call the function from the parent to preserver 'this' in classes.
+          // * Need to call the function from the parent to preserve 'this' in classes.
           // * So pop off the function name, get the parent and call the function from the parent.
           const variablePathParts = variablePath.split('.')
           const functionName = variablePathParts.pop()
