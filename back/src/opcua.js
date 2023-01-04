@@ -24,7 +24,7 @@ class Opcua {
     this.error = null
     this.retryCount = 0
     this.nodes = null
-    options = {
+    const options = {
       applicationName,
       connectionStrategy: {
         initialDelay,
@@ -32,7 +32,7 @@ class Opcua {
       },
       securityMode: MessageSecurityMode.None,
       securityPolicy: SecurityPolicy.None,
-      endpoint_must_exist: false,
+      endpointMustExist: false,
     }
     this.client = OPCUAClient.create(options)
     this.client.on('connection_failed', async () => {
@@ -52,7 +52,7 @@ class Opcua {
     if (!this.connected) {
       this.error = null
       console.log(
-        `Connecting to opcua device ${this.device.name}, host: ${this.host}, port: ${this.port}.`
+        `Connecting to opcua device, host: ${this.host}, port: ${this.port}.`
       )
       await this.client
         .connect(`opc.tcp://${this.host}:${this.port}`)
@@ -62,7 +62,7 @@ class Opcua {
           if (!this.retryInterval) {
             this.retryInterval = setInterval(async () => {
               console.log(
-                `Retrying connection to opcua device ${this.device.name}, retry attempts: ${this.retryCount}.`
+                `Retrying connection to opcua device, retry attempts: ${this.retryCount}.`
               )
               this.retryCount += 1
               await this.connect()
@@ -73,14 +73,14 @@ class Opcua {
         this.retryCount = 0
         this.retryInterval = clearInterval(this.retryInterval)
         console.log(
-          `Connected to opcua device ${this.device.name}, host: ${this.host}, port: ${this.port}.`
+          `Connected to opcua device, host: ${this.host}, port: ${this.port}.`
         )
         this.connected = true
         this.session = await this.client.createSession()
       } else {
         this.connected = false
         console.log(
-          `Connection failed to opcua device ${this.device.name}, host: ${this.host}, port: ${this.port}, with error: ${this.error}.`
+          `Connection failed to opcua device, host: ${this.host}, port: ${this.port}, with error: ${this.error}.`
         )
       }
     }
@@ -88,8 +88,8 @@ class Opcua {
   async disconnect() {
     this.retryCount = 0
     this.retryInterval = clearInterval(this.retryInterval)
-    console.log(`Disconnecting from modbus device ${this.device.name}`)
-    const logText = `Closed connection to modbus device ${this.device.name}.`
+    console.log(`Disconnecting from modbus device`)
+    const logText = `Closed connection to modbus device.`
     if (this.connected) {
       await this.session.close()
       await this.client.disconnect()
@@ -140,33 +140,36 @@ class Opcua {
           value: { value },
         } = await this.session
           .readVariableValue(nodeId)
-          .catch((error) => logger.error(error))
+          .catch((error) => console.error(error))
         return value
       } catch (error) {
         console.error(error)
       }
     }
   }
-  async write({ inputValue, nodeId, datatype }) {
+  async write({ inputValue, nodeId, registerType }) {
     if (this.connected) {
       let opcuaDataType
       let value
-      if (datatype === 'BOOLEAN') {
+      if (registerType === 'BOOLEAN') {
         opcuaDataType = DataType.Boolean
         value = inputValue + '' === 'true'
-      } else if (datatype === 'FLOAT') {
+      } else if (registerType === 'FLOAT') {
         opcuaDataType = DataType.Float
-        value = parseFloat(value)
-      } else if (datatype === 'INT32') {
+        value = parseFloat(inputValue)
+      } else if (registerType === 'INT16') {
+        opcuaDataType = DataType.Int16
+        value = parseInt(inputValue)
+      } else if (registerType === 'INT32') {
         opcuaDataType = DataType.Int32
-        value = parseInt(value)
+        value = parseInt(inputValue)
       } else {
         opcuaDataType = DataType.String
         value = inputValue
       }
       await this.session
-        .writeSingleNode(nodeId, { value, opcuaDataType })
-        .catch((error) => logger.error(error))
+        .writeSingleNode(nodeId, { value, dataType: opcuaDataType })
+        .catch((error) => console.error(error))
     }
   }
 }

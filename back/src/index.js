@@ -6,12 +6,9 @@ const expressPlayground =
 const cors = require('cors')
 const fs = require('fs')
 const path = require('path')
-const Persistence = require('./persistence')
 const _ = require('lodash')
 const denormalize = require('./denormalize')
 const recursiveReaddir = require('./recursiveReaddir.js')
-const Mqtt = require('./mqtt')
-const Modbus = require('./modbus')
 const PLC = require('./plc')
 
 const app = express()
@@ -63,6 +60,15 @@ const rootValue = {
             ? context.plc.config.modbus[key].description
             : '',
           ...context.plc.config.modbus[key],
+        }
+      }),
+      opcua: Object.keys(context.plc.config.opcua).map((key) => {
+        return {
+          name: key,
+          description: context.plc.config.opcua[key].description
+            ? context.plc.config.opcua[key].description
+            : '',
+          ...context.plc.config.opcua[key],
         }
       }),
     }

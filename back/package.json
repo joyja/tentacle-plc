@@ -23,6 +23,7 @@
     "lodash": "^4.17.21",
     "modbus-serial": "^8.0.5-no-serial-port",
     "node-fetch": "^2.6.6",
+    "node-opcua": "^2.87.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "tentacle-sparkplug-client": "^0.0.6"

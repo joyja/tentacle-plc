@@ -73,6 +73,13 @@ type configModbusConfig {
   retryRate: Int
 }
 
+"""Opcua client configuration"""
+type configOpcuaConfig {
+  host: String
+  port: Int
+  retryRate: Int
+}
+
 """MQTT Client basic configuration"""
 type configMqtt {
   name: String!
@@ -87,11 +94,19 @@ type configModbus {
   config: configModbusConfig!
 }
 
+"""OPCUA client basic configuration"""
+type configOpcua {
+  name: String!
+  description: String!
+  config: configOpcuaConfig!
+}
+
 """Overall Tentacle PLC configration"""
 type config {
   tasks: [configTask!]!
   mqtt: [configMqtt!]!
   modbus: [configModbus!]!
+  opcua: [configOpcua!]!
 }
 
 """Task metrics for diagnostic data"""

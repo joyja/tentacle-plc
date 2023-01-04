@@ -199,6 +199,14 @@ export const actions = {
               port
             }
           }
+          opcua {
+            name
+            description
+            config {
+              host
+              port
+            }
+          }
         }
       }`})
   },

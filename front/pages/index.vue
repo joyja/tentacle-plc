@@ -109,6 +109,28 @@
           <p>There are no Modbus connections configured.</p>
         </div>
       </div>
+      <div class="drop-shadow-md rounded bg-slate-300 my-3">
+        <div class="p-3 text-lg rounded-t text-white bg-slate-500">
+          OPC UA
+        </div>
+        <div v-if="configuration && configuration.opcua && configuration.opcua.length > 0">
+          <div
+            v-for="opcua in configuration.opcua"
+            :key="opcua.name"
+          >
+            <div class="pt-3 px-3 pb-1 flex justify-between items-center">
+              <div class="flex flex-col">
+                <p>{{ opcua.name }}</p>
+                <p class="text-sm text-slate-600">{{ opcua.description }}</p>
+                <p class="text-sm text-slate-600">tcp://{{ opcua.config.host }}:{{ opcua.config.port}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="p-2">
+          <p>There are no OPC UA connections configured.</p>
+        </div>
+      </div>
     </div>
     <div class="flex flex-col grow shrink" style="flex-basis: 600px; min-width: 600px;">
       <div class="m-3 drop-shadow-md rounded bg-slate-300">

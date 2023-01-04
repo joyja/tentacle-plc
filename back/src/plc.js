@@ -187,10 +187,10 @@ class PLC {
                   const variable = this.variables[variableKey]
                   if (variable.source) {
                     if (variable.source.type === 'modbus') {
-                      await modbus[variable.source.name].write({
-                        value: [this.global[variableKey]],
-                        ...variable.source.params,
-                      })
+                      // await modbus[variable.source.name].write({
+                      //   value: [this.global[variableKey]],
+                      //   ...variable.source.params,
+                      // })
                       if (this.modbus[variable.source.name].connected) {
                         this.modbus[variable.source.name]
                           .read(variable.source.params)
@@ -198,13 +198,13 @@ class PLC {
                       }
                     }
                     if (variable.source.type === 'opcua') {
-                      await opcua[variable.source.name].write({
-                        value: [this.global[variableKey]],
-                        ...variable.source.params,
-                      })
+                      // await opcua[variable.source.name].write({
+                      //   inputValue: this.global[variableKey],
+                      //   ...variable.source.params,
+                      // })
                       if (this.opcua[variable.source.name].connected) {
                         this.opcua[variable.source.name]
-                          .read(variable.source.name)
+                          .read(variable.source.params)
                           .then((result) => (this.global[variableKey] = result))
                       }
                     }
