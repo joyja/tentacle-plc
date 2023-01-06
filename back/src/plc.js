@@ -197,18 +197,37 @@ class PLC {
                           .then((result) => (this.global[variableKey] = result))
                       }
                     }
-                    if (variable.source.type === 'opcua') {
+                    // if (variable.source.type === 'opcua') {
                       // await opcua[variable.source.name].write({
                       //   inputValue: this.global[variableKey],
                       //   ...variable.source.params,
                       // })
-                      if (this.opcua[variable.source.name].connected) {
-                        this.opcua[variable.source.name]
-                          .read(variable.source.params)
-                          .then((result) => (this.global[variableKey] = result))
-                      }
-                    }
+                    //   if (this.opcua[variable.source.name].connected) {
+                    //     this.opcua[variable.source.name]
+                    //       .read(variable.source.params)
+                    //       .then((result) => (this.global[variableKey] = result))
+                    //   }
+                    // }
                   }
+                }
+                for (const opcuaKey of Object.keys(this.opcua)) {
+                  const opcuaNodeVariables = Object.keys(this.variables)
+                    .filter((variableKey) => {
+                      return this.variables[variableKey].source.name == opcuaKey
+                    })
+                    .filter((variableKey) => {
+                      return this.variables[variableKey].source.type === 'opcua'
+                    })
+                  const opcuaNodeIds = opcuaNodeVariables.map((variableKey) => {
+                      return this.variables[variableKey].source.params.nodeId
+                    })
+                  this.opcua[opcuaKey]
+                    .readMany({ nodeIds: opcuaNodeIds })
+                    .then((result) => {
+                      for (let i = 0; i < result.length; i++) {
+                        this.global[opcuaNodeVariables[i]] = result[i]
+                      }
+                    })
                 }
                 const functionStop = process.hrtime(functionStart)
                 metrics[taskKey].functionExecutionTime =

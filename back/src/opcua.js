@@ -5,6 +5,7 @@ const {
   SecurityPolicy,
   makeBrowsePath,
   NodeCrawler,
+  AttributeIds
 } = require('node-opcua')
 
 class Opcua {
@@ -147,6 +148,25 @@ class Opcua {
       }
     }
   }
+  async readMany({ nodeIds }) {
+    if (this.connected) {
+      try {
+        const results = await this.session
+          .read(nodeIds.map((nodeId) => {
+            return {
+              nodeId,
+              attributeId: AttributeIds.value
+            }
+          }))
+          .catch((error) => console.error(error))
+        return results.map((result) => {
+          return result.value.value
+        })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
   async write({ inputValue, nodeId, registerType }) {
     if (this.connected) {
       let opcuaDataType
@@ -156,6 +176,9 @@ class Opcua {
         value = inputValue + '' === 'true'
       } else if (registerType === 'FLOAT') {
         opcuaDataType = DataType.Float
+        value = parseFloat(inputValue)
+      } else if (registerType === 'DOUBLE') {
+        opcuaDataType = DataType.Double
         value = parseFloat(inputValue)
       } else if (registerType === 'INT16') {
         opcuaDataType = DataType.Int16
