@@ -33,6 +33,8 @@ class Mqtt {
     clientId,
     version = 'spBv1.0',
     global,
+    primaryHosts = [],
+    maxHistoryToPublish = 10,
   }) {
     this.rate = rate
     this.global = global
@@ -48,6 +50,15 @@ class Mqtt {
       version,
       publishDeath: true,
     }
+    this.primaryHosts = primaryHosts.map((name) => {
+      return {
+        name,
+        readyForData: false,
+        status: 'OFFLINE',
+        history: []
+      }
+    })
+    this.maxHistoryToPublish = maxHistoryToPublish
   }
   get denormalizedGlobal() {
     return denormalize(this.global)
@@ -69,10 +80,21 @@ class Mqtt {
       }
     })
     if (payload.length > 0) {
-      await this.client.publishDeviceData(this.deviceName, {
+      const record = {
         timestamp: getUnixTime(new Date()),
         metrics: [...payload],
-      })
+      }
+      await this.client.publishDeviceData(this.deviceName, record)
+      for (const host of this.primaryHosts) {
+        if (!host.readyForData) {
+          host.history.push({ ...record, isHistorical: true })
+        } else {
+          const historyToPublish = host.history.splice(0,this.maxHistoryToPublish - 1)
+          for (const storedRecord of historyToPublish) {
+            await this.client.publishDeviceData(this.deviceName, storedRecord)
+          }
+        }
+      }
     }
     this.prevGlobal = JSON.parse(JSON.stringify(this.denormalizedGlobal))
   }
@@ -106,6 +128,7 @@ class Mqtt {
         }
       })
       this.client.on('ncmd', (payload) => {
+        console.log('this happend')
         if (payload.metrics) {
           const rebirth = payload.metrics.find(
             (metric) => metric.name === `Node Control/Rebirth`
@@ -121,14 +144,14 @@ class Mqtt {
       })
     }
   }
-  disconnect() {
+  async disconnect() {
     if (this.client) {
       console.log(`Mqtt service is disconnecting.`)
       this.stopPublishing()
       const payload = {
         timestamp: getUnixTime(new Date()),
       }
-      this.client.publishDeviceDeath(`${this.deviceName}`, payload)
+      await this.client.publishDeviceDeath(`${this.deviceName}`, payload)
       this.client.stop()
       this.client = undefined
     }
@@ -168,7 +191,14 @@ class Mqtt {
   async onBirth() {
     const payload = {
       timestamp: getUnixTime(new Date()),
-      metrics: [],
+      metrics: [
+        { 
+          name: 'Node Control/Rebirth',
+          timestamp: getUnixTime(new Date()),
+          type: "Boolean",
+          value: false
+        }
+      ],
     }
     await this.client.publishNodeBirth(payload)
     const global = this.denormalizedGlobal
@@ -199,6 +229,29 @@ class Mqtt {
     await this.client.publishDeviceBirth(`${this.deviceName}`, {
       timestamp: getUnixTime(new Date()),
       metrics,
+    })
+    this.primaryHosts.forEach((host) => {
+      if (host.status === `ONLINE` || host.status === `UNKOWN`) {
+        host.readyForData = true
+      }
+    })
+    this.client.on('state', (primaryHostId, state) => {
+      if (primaryHostId) {
+        const primaryHost = this.primaryHosts
+          .filter((host) => host.name === primaryHostId)
+          .forEach((host) => {
+            console.log(`Received state: ${state} for primary host: ${primaryHostId}`)
+            if (host) {
+              host.status = `${state}`
+              if (`${state}` === `OFFLINE`) {
+                host.readyForData = false
+              }
+              if (`${state}` === `ONLINE`) {
+                host.readyForData = true
+              }
+            }
+          })
+      }
     })
     this.startPublishing()
   }

@@ -224,8 +224,10 @@ class PLC {
                   this.opcua[opcuaKey]
                     .readMany({ nodeIds: opcuaNodeIds })
                     .then((result) => {
-                      for (let i = 0; i < result.length; i++) {
-                        this.global[opcuaNodeVariables[i]] = result[i]
+                      if (result) {
+                        for (let i = 0; i < result.length; i++) {
+                          this.global[opcuaNodeVariables[i]] = result[i]
+                        }
                       }
                     })
                 }

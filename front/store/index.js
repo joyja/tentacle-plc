@@ -21,7 +21,7 @@ export const getters = {
   clientPort: () => process.env.TENTACLE_CLIENT_PORT || 4000,
   clientUrl: () => process.env.TENTACLE_CLIENT_URL || '/',
   endpoint (state, getters) {
-    if (process.client) {
+    if (process.client) {zz
       return `${getters.clientProtocol}://${getters.clientHost}:${getters.clientPort}${getters.clientUrl}`
     } else {
       return `${getters.serverProtocol}://${getters.serverHost}:${getters.serverPort}${getters.serverUrl}`
@@ -33,7 +33,7 @@ export const getters = {
         return {
           name: key,
           type: 'program',
-          ...state.programs[key],
+          ...state.programs[key], 
         }
       }),
       ...Object.keys(state.classes).map((key) => {
