@@ -15,7 +15,13 @@ class Persistence {
     this.classes = classes
     this.filepath = filepath
     if (fs.existsSync(filepath)) {
-      this.data = JSON.parse(fs.readFileSync(filepath))
+      try {
+        this.data = JSON.parse(fs.readFileSync(filepath))
+      } catch(error) {
+        console.log(error)
+        this.data = {}
+        this.writeFile()
+      }
     } else {
       this.data = {}
       this.writeFile()
