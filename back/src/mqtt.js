@@ -127,8 +127,7 @@ class Mqtt {
           console.log(error)
         }
       })
-      this.client.on('ncmd', (payload) => {
-        console.log('this happend')
+      this.client.on('ncmd', async (payload) => {
         if (payload.metrics) {
           const rebirth = payload.metrics.find(
             (metric) => metric.name === `Node Control/Rebirth`
