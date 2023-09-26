@@ -213,10 +213,10 @@ class PLC {
                 for (const opcuaKey of Object.keys(this.opcua)) {
                   const opcuaNodeVariables = Object.keys(this.variables)
                     .filter((variableKey) => {
-                      return this.variables[variableKey].source.name == opcuaKey
+                      return this.variables[variableKey].source?.name == opcuaKey
                     })
                     .filter((variableKey) => {
-                      return this.variables[variableKey].source.type === 'opcua'
+                      return this.variables[variableKey].source?.type === 'opcua'
                     })
                   const opcuaNodeIds = opcuaNodeVariables.map((variableKey) => {
                       return this.variables[variableKey].source.params.nodeId
