@@ -136,7 +136,7 @@ class Mqtt {
           if (rebirth) {
             if (rebirth.value) {
               console.log(`Rebirth request detected. Reinitializing...`)
-              this.disconnect()
+              await this.disconnect()
               this.connect()
             }
           }
