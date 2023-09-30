@@ -36,6 +36,7 @@ class Mqtt {
     primaryHosts = [],
     maxHistoryToPublish = 10,
   }) {
+    this.queue = []
     this.rate = rate
     this.global = global
     this.prevGlobal = JSON.parse(JSON.stringify(this.denormalizedGlobal))
@@ -64,25 +65,11 @@ class Mqtt {
     return denormalize(this.global)
   }
   async publish() {
-    const currentGlobal = this.denormalizedGlobal
-    const changed = {}
-    Object.keys(currentGlobal).forEach((key) => {
-      if (currentGlobal[key] !== this.prevGlobal[key]) {
-        changed[key] = currentGlobal[key]
-      }
-    })
-    const payload = Object.keys(changed).map((key) => {
-      return {
-        name: key.replaceAll('.', '/'),
-        value: changed[key],
-        type: getDatatype(changed[key]),
-        timestamp: getUnixTime(new Date()),
-      }
-    })
-    if (payload.length > 0) {
+    console.log(this.queue)
+    if (this.queue.length > 0) {
       const record = {
         timestamp: getUnixTime(new Date()),
-        metrics: [...payload],
+        metrics: [...this.queue],
       }
       await this.client.publishDeviceData(this.deviceName, record)
       for (const host of this.primaryHosts) {
@@ -95,8 +82,8 @@ class Mqtt {
           }
         }
       }
+      this.queue = []
     }
-    this.prevGlobal = JSON.parse(JSON.stringify(this.denormalizedGlobal))
   }
   startPublishing() {
     this.interval = clearInterval(this.interval)

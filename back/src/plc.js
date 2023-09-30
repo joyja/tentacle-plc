@@ -5,6 +5,21 @@ const chokidar = require('chokidar')
 const Mqtt = require('./mqtt')
 const Modbus = require('./modbus')
 const Opcua = require('./opcua')
+const differenceInMilliseconds = require('date-fns/differenceInMilliseconds')
+const getUnixTime = require('date-fns/getUnixTime')
+
+const getDatatype = function (value) {
+  if (typeof value === 'boolean') {
+    return 'BOOLEAN'
+  } else if (typeof value === 'string') {
+    return 'STRING'
+  } else if (typeof value === 'number') {
+    return 'FLOAT'
+  } else {
+    console.error(`datatype of ${value} could not be determined.`)
+    return 'STRING'
+  }
+}
 
 class PLC {
   constructor() {
@@ -230,6 +245,34 @@ class PLC {
                         }
                       }
                     })
+                }
+                for (const key of Object.keys(this.variables)) {
+                  const now = new Date()
+                  const variable = this.variables[key]
+                  const isNumeric = variable.datatype === 'number'
+                  const lastPublished = variable.lastPublished
+                  const lastValue = variable.lastValue
+                  const deadbandMaxTime = variable.deadband?.maxTime
+                  let outsideDeadband = false
+                  if (isNumeric) {
+                    const deadband = variable.deadband?.value || 0
+                    outsideDeadband = variable.lastValue === undefined || Math.abs(this.global[key] - variable.lastValue) > deadband
+                  } else {
+                    outsideDeadband = variable.lastValue !== this.global[key]
+                  }
+                  let outsideDeadbandMaxTime = lastValue === undefined || lastPublished === undefined || differenceInMilliseconds(now, lastPublished) > deadbandMaxTime
+                  if (outsideDeadband || outsideDeadbandMaxTime) {
+                    for (const mqttKey of Object.keys(this.mqtt)){
+                      this.mqtt[mqttKey].queue.push({
+                        name: key.replaceAll('.', '/'),
+                        value: this.global[key],
+                        type: getDatatype(this.global[key]),
+                        timestamp: getUnixTime(new Date()),
+                      })
+                    }
+                    variable.lastValue = this.global[key]
+                    variable.lastPublished = now
+                  }
                 }
                 const functionStop = process.hrtime(functionStart)
                 metrics[taskKey].functionExecutionTime =
