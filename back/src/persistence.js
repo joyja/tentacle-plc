@@ -1,6 +1,5 @@
 const { rejects } = require('assert')
 const fs = require('fs')
-const { VariablesInAllowedPositionRule } = require('graphql')
 const path = require('path')
 
 class Persistence {

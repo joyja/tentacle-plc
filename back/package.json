@@ -21,7 +21,7 @@
     "graphql-playground-middleware-express": "^1.7.23",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
-    "modbus-serial": "^8.0.5-no-serial-port",
+    "modbus-serial": "8.0.5-no-serial-port",
     "node-fetch": "^2.6.6",
     "node-opcua": "^2.87.0",
     "nodemon": "^2.0.15",

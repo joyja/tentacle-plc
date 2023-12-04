@@ -56,7 +56,7 @@ class Mqtt {
         name,
         readyForData: false,
         status: 'OFFLINE',
-        history: []
+        history: [],
       }
     })
     this.maxHistoryToPublish = maxHistoryToPublish
@@ -65,7 +65,6 @@ class Mqtt {
     return denormalize(this.global)
   }
   async publish() {
-    console.log(this.queue)
     if (this.queue.length > 0) {
       const record = {
         timestamp: getUnixTime(new Date()),
@@ -76,7 +75,10 @@ class Mqtt {
         if (!host.readyForData) {
           host.history.push({ ...record, isHistorical: true })
         } else {
-          const historyToPublish = host.history.splice(0,this.maxHistoryToPublish - 1)
+          const historyToPublish = host.history.splice(
+            0,
+            this.maxHistoryToPublish - 1
+          )
           for (const storedRecord of historyToPublish) {
             await this.client.publishDeviceData(this.deviceName, storedRecord)
           }
@@ -178,12 +180,12 @@ class Mqtt {
     const payload = {
       timestamp: getUnixTime(new Date()),
       metrics: [
-        { 
+        {
           name: 'Node Control/Rebirth',
           timestamp: getUnixTime(new Date()),
-          type: "Boolean",
-          value: false
-        }
+          type: 'Boolean',
+          value: false,
+        },
       ],
     }
     await this.client.publishNodeBirth(payload)
@@ -226,7 +228,9 @@ class Mqtt {
         const primaryHost = this.primaryHosts
           .filter((host) => host.name === primaryHostId)
           .forEach((host) => {
-            console.log(`Received state: ${state} for primary host: ${primaryHostId}`)
+            console.log(
+              `Received state: ${state} for primary host: ${primaryHostId}`
+            )
             if (host) {
               host.status = `${state}`
               if (`${state}` === `OFFLINE`) {
