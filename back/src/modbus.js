@@ -194,7 +194,7 @@ class Modbus {
                 reject(error)
                 return
               }
-              resolve()f
+              resolve()
             }
           )
         }).catch(async (error) => {
