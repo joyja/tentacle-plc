@@ -212,17 +212,17 @@ class PLC {
                           .then((result) => (this.global[variableKey] = result))
                       }
                     }
-                    // if (variable.source.type === 'opcua') {
-                      // await opcua[variable.source.name].write({
-                      //   inputValue: this.global[variableKey],
-                      //   ...variable.source.params,
-                      // })
-                    //   if (this.opcua[variable.source.name].connected) {
-                    //     this.opcua[variable.source.name]
-                    //       .read(variable.source.params)
-                    //       .then((result) => (this.global[variableKey] = result))
-                    //   }
-                    // }
+                    if (variable.source.type === 'opcua' && variable.source.bidrectional === 'true') {
+                      await opcua[variable.source.name].write({
+                        inputValue: this.global[variableKey],
+                        ...variable.source.params,
+                      })
+                      if (this.opcua[variable.source.name].connected) {
+                        this.opcua[variable.source.name]
+                          .read(variable.source.params)
+                          .then((result) => (this.global[variableKey] = result))
+                      }
+                    }
                   }
                 }
                 for (const opcuaKey of Object.keys(this.opcua)) {
