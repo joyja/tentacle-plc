@@ -1,5 +1,5 @@
 const sparkplug = require('tentacle-sparkplug-client')
-const getUnixTime = require('date-fns/getUnixTime')
+const { getUnixTime } = require('date-fns')
 const denormalize = require('./denormalize')
 const { clear } = require('tentacle-sparkplug-client/src/logger')
 const _ = require('lodash')

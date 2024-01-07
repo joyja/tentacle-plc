@@ -5,8 +5,7 @@ const chokidar = require('chokidar')
 const Mqtt = require('./mqtt')
 const Modbus = require('./modbus')
 const Opcua = require('./opcua')
-const differenceInMilliseconds = require('date-fns/differenceInMilliseconds')
-const getUnixTime = require('date-fns/getUnixTime')
+const { getUnixTime, differenceInMilliseconds } = require('date-fns')
 
 const getDatatype = function (value) {
   if (typeof value === 'boolean') {
