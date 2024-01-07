@@ -171,7 +171,6 @@ class Opcua {
     if (this.connected) {
       let opcuaDataType
       let value
-      console.log(inputValue, nodeId, registerType)
       if (registerType === 'BOOLEAN') {
         opcuaDataType = DataType.Boolean
         value = inputValue + '' === 'true'
@@ -194,8 +193,9 @@ class Opcua {
       await this.session
         .writeSingleNode(nodeId, { value, dataType: opcuaDataType })
         .then((result) => {
-          console.log(result)
-        
+          if (result.name !== 'Good') {
+            console.log(result.description || `The operation failed with status name: ${result.name}`)
+          }
         })
         .catch((error) => console.error(error))
     }
