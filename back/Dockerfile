@@ -1,17 +1,31 @@
-FROM keymetrics/pm2:16-buster
+FROM node:20.6.0-bookworm AS base
+
+RUN npm i -g pnpm
+
+FROM base AS dependencies
 
 # Bundle APP files
-COPY src tentacle/src
-COPY package.json tentacle/
-COPY ecosystem.config.js tentacle/
-WORKDIR /tentacle
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
+
+FROM base AS build
+
+WORKDIR /app
+COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
 
 # Install app dependencies
-ENV NPM_CONFIG_LOGLEVEL warn
-RUN npm install --production
+RUN pnpm prune --prod
+
+FROM base AS deploy
+
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+COPY --from=build /app/node_modules ./node_modules
 
 # Expose the listening port of your app
 EXPOSE 4000
 
 # Show current folder structure in logs
-CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]
+CMD node ./src/index.js
