@@ -171,6 +171,7 @@ class Opcua {
     if (this.connected) {
       let opcuaDataType
       let value
+      console.log(inputValue, nodeId, registerType)
       if (registerType === 'BOOLEAN') {
         opcuaDataType = DataType.Boolean
         value = inputValue + '' === 'true'
