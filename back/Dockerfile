@@ -23,6 +23,7 @@ FROM base AS deploy
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/src ./src
 
 # Expose the listening port of your app
 EXPOSE 4000
