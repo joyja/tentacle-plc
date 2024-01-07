@@ -100,6 +100,8 @@ const rootValue = {
     if (variable !== undefined) {
       if (typeof variable == 'boolean') {
         _.set(context.plc.global, args.variablePath, args.value === 'true')
+      } else {
+        _.set(context.plc.global, args.variablePath, args.value)
       }
       return {
         path: args.variablePath,

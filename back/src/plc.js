@@ -211,11 +211,7 @@ class PLC {
                           .then((result) => (this.global[variableKey] = result))
                       }
                     }
-                    if (variableKey === 'FAN_Ssp') {
-                      console.log(variable.source.bidirectional)
-                    }
                     if (variable.source.type === 'opcua' && variable.source.bidirectional) {
-                      console.log(`writing ${this.global[variableKey]} to ${variable.source.params.nodeId}`)
                       await opcua[variable.source.name].write({
                         inputValue: this.global[variableKey],
                         ...variable.source.params,
