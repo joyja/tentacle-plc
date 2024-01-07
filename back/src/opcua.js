@@ -193,6 +193,10 @@ class Opcua {
       }
       await this.session
         .writeSingleNode(nodeId, { value, dataType: opcuaDataType })
+        .then((result) => {
+          console.log(result)
+        
+        })
         .catch((error) => console.error(error))
     }
   }
