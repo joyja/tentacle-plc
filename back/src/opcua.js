@@ -151,19 +151,38 @@ class Opcua {
   async readMany({ nodeIds }) {
     if (this.connected) {
       try {
-        const results = await this.session
-          .read(nodeIds.map((nodeId) => {
-            return {
-              nodeId,
-              attributeId: AttributeIds.value
-            }
-          }))
-          .catch((error) => console.error(error))
-        return results.map((result) => {
-          return result.value.value
-        })
+        // Function to split array into chunks
+        const chunkArray = (arr, chunkSize) => {
+          const chunks = [];
+          for (let i = 0; i < arr.length; i += chunkSize) {
+            chunks.push(arr.slice(i, i + chunkSize));
+          }
+          return chunks;
+        };
+  
+        // Splitting nodeIds into chunks of 50
+        const nodeIdChunks = chunkArray(nodeIds, 50);
+        let allResults = [];
+  
+        // Processing each chunk
+        for (const chunk of nodeIdChunks) {
+          const results = await this.session
+            .read(chunk.map((nodeId) => {
+              return {
+                nodeId,
+                attributeId: AttributeIds.value
+              };
+            }))
+            .catch((error) => console.error(error));
+  
+          if (results) {
+            allResults = allResults.concat(results.map((result) => result.value.value));
+          }
+        }
+  
+        return allResults;
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     }
   }
