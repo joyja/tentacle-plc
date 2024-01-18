@@ -96,17 +96,20 @@ const rootValue = {
     })
   },
   setValue: function (args, context, info) {
-    const variable = _.get(context.plc.global, args.variablePath)
-    if (variable !== undefined) {
-      if (typeof variable == 'boolean') {
+    const variable = _.get(context.plc.variables, args.variablePath)
+    const global = _.get(context.plc.global, args.variablePath)
+    if (variable !== undefined && global !== undefined) {
+      if (variable.datatype == 'boolean') {
         _.set(context.plc.global, args.variablePath, args.value === 'true')
+      } else if (variable.datatype == 'number') {
+        _.set(context.plc.global, args.variablePath, parseFloat(args.value))
       } else {
         _.set(context.plc.global, args.variablePath, args.value)
       }
       return {
         path: args.variablePath,
         value: args.value,
-        datatype: typeof variable,
+        datatype: variable.datatype,
       }
     } else {
       throw Error(`${args.variablePath} does not exits.`)
